@@ -231,7 +231,12 @@ public class Slide {
 
     public static List<Slide> parse(String s) {
         List<Slide> slides = new ArrayList<>();
+
         String[] paragraphs = s.split("(\n\\s*){2,}");
+
+        if(App.getState().plantUMLEnabled())
+            paragraphs = joinPlantUMLDiagrams(paragraphs);
+
         for (String par : paragraphs) {
             if(App.getState().plantUMLEnabled())
                 slides.add(new Slide(parsePlantUML(par)));
@@ -239,6 +244,39 @@ public class Slide {
                 slides.add(new Slide(par));
         }
         return slides;
+    }
+
+    private static String[] joinPlantUMLDiagrams(String[] paragraphs) {
+        List<String> finalParagraphs = new ArrayList<>();
+
+        boolean inUMLDiagram = false;
+
+        for (String par : paragraphs) {
+            if(inUMLDiagram) {
+                String p = finalParagraphs.get(finalParagraphs.size()-1);
+                p += "\n" + par;
+                finalParagraphs.set(finalParagraphs.size()-1, p);
+            } else {
+                finalParagraphs.add(par);
+            }
+
+            for(String line : par.split("\n")) {
+                if(isStartUML(line)) inUMLDiagram = true;
+                else if(isEndUML(line)) inUMLDiagram = false;
+            }
+        }
+
+        return finalParagraphs.toArray(new String[]{});
+    }
+
+    private static String startUML = "@startuml";
+
+    private static boolean isStartUML(String s) {
+        return s.trim().toLowerCase().startsWith(startUML);
+    }
+
+    private static boolean isEndUML(String s) {
+        return s.trim().toLowerCase().startsWith("@enduml");
     }
 
     private static String parsePlantUML(String par) {
@@ -249,28 +287,24 @@ public class Slide {
         String bgArgs = "";
 
         for (String line : par.split("\n")) {
-            String lineT = line.trim();
-
             if (inUML) {
-                if (lineT.toLowerCase().equals("@enduml")) {
+                if (isEndUML(line)) {
                     outLines.add(processPlantUML(TextUtils.join("\n", umlLines)) + bgArgs);
                     inUML = false;
                     umlLines = null;
                     bgArgs = "";
                 } else {
-                    if (line.startsWith("."))
-                        umlLines.add(line.substring(1));
-                    else
-                        umlLines.add(line);
+                    umlLines.add(line);
                 }
             } else {
-                if (lineT.toLowerCase().startsWith("@startuml")) {
+                if (isStartUML(line)) {
                     umlLines = new ArrayList<>();
                     inUML = true;
-                    bgArgs = lineT.substring("@startuml".length());
+                    bgArgs = line.trim().substring(startUML.length());
                     if(!bgArgs.isEmpty() && bgArgs.charAt(0) != ' ') bgArgs = " " + bgArgs;
-                } else
+                } else {
                     outLines.add(line);
+                }
             }
         }
 
