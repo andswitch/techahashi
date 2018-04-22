@@ -18,5 +18,7 @@ public enum ActionType {
     INSERT_IMAGE,
     SET_COLOR_SCHEME,
     CREATE_PDF,
-    EXPORT_PDF
+    EXPORT_PDF,
+
+    CONFIGURE_PLANTUML
 }

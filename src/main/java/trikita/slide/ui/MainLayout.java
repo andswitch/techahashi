@@ -3,8 +3,14 @@ package trikita.slide.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.util.Pair;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import trikita.anvil.Anvil;
 import trikita.anvil.RenderableView;
@@ -13,7 +19,29 @@ import trikita.slide.ActionType;
 import trikita.slide.App;
 import trikita.slide.R;
 
-import static trikita.anvil.DSL.*;
+import static trikita.anvil.DSL.FILL;
+import static trikita.anvil.DSL.START;
+import static trikita.anvil.DSL.TOP;
+import static trikita.anvil.DSL.WRAP;
+import static trikita.anvil.DSL.alignParentBottom;
+import static trikita.anvil.DSL.background;
+import static trikita.anvil.DSL.button;
+import static trikita.anvil.DSL.centerHorizontal;
+import static trikita.anvil.DSL.centerInParent;
+import static trikita.anvil.DSL.dip;
+import static trikita.anvil.DSL.frameLayout;
+import static trikita.anvil.DSL.gravity;
+import static trikita.anvil.DSL.init;
+import static trikita.anvil.DSL.linearLayout;
+import static trikita.anvil.DSL.margin;
+import static trikita.anvil.DSL.onClick;
+import static trikita.anvil.DSL.onTextChanged;
+import static trikita.anvil.DSL.relativeLayout;
+import static trikita.anvil.DSL.size;
+import static trikita.anvil.DSL.text;
+import static trikita.anvil.DSL.textView;
+import static trikita.anvil.DSL.v;
+import static trikita.anvil.DSL.visibility;
 
 public class MainLayout extends RenderableView {
 
@@ -40,7 +68,7 @@ public class MainLayout extends RenderableView {
                 gravity(TOP | START);
                 text(App.getState().text());
                 Style.Editor.textStyle();
-                backgroundDrawable(null);
+                background(null);
                 init(() -> {
                     mEditor = Anvil.currentView();
                     mEditor.setOnSelectionChangedListener(pos -> {
@@ -114,6 +142,8 @@ public class MainLayout extends RenderableView {
             //} else if (item.getItemId() == R.id.menu_settings) {
             } else if (item.getItemId() == R.id.menu_export_pdf) {
                 App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) v.getContext()));
+            } else if (item.getItemId() == R.id.menu_config_plantuml) {
+                openConfigPlantUMLDialog();
             }
             return true;
         });
@@ -129,5 +159,49 @@ public class MainLayout extends RenderableView {
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
+    }
+
+    private void openConfigPlantUMLDialog() {
+        LinearLayout contents = new LinearLayout(getContext());
+        contents.setOrientation(LinearLayout.VERTICAL);
+
+        TextView warning = new TextView(getContext());
+        warning.setText(R.string.pm_warning);
+        contents.addView(warning);
+
+        CheckBox enable = new CheckBox(getContext());
+        enable.setChecked(App.getState().plantUMLEnabled());
+        enable.setText(R.string.pm_enable);
+        contents.addView(enable);
+
+        EditText txtUrl = new EditText(getContext());
+        txtUrl.setHint(R.string.pm_plantuml_endpoint);
+        txtUrl.setText(App.getState().plantUMLEndPoint());
+        contents.addView(txtUrl);
+
+        TextView preamble = new TextView(getContext());
+        preamble.setText(R.string.pm_plantuml_preamble);
+        contents.addView(preamble);
+
+        EditText txtPreamble = new EditText(getContext());
+        txtPreamble.setSingleLine(false);
+        txtPreamble.setText(App.getState().plantUMLPreamble());
+        contents.addView(txtPreamble);
+
+        new AlertDialog.Builder(getContext())
+            .setTitle(R.string.om_config_plantuml)
+            .setView(contents)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    App.dispatch(new Action<>(ActionType.CONFIGURE_PLANTUML,
+                        new Pair<>(enable.isChecked(),
+                            new Pair<>(txtUrl.getText().toString(), txtPreamble.getText().toString()))));
+                }
+            })
+            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            })
+            .show();
     }
 }
