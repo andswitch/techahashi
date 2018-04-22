@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Pair;
 import android.view.View;
 import android.widget.CheckBox;
@@ -144,6 +146,8 @@ public class MainLayout extends RenderableView {
                 App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) v.getContext()));
             } else if (item.getItemId() == R.id.menu_config_plantuml) {
                 openConfigPlantUMLDialog();
+            } else if (item.getItemId() == R.id.menu_plantuml_docs) {
+                openPlantUMLDocs();
             }
             return true;
         });
@@ -203,5 +207,11 @@ public class MainLayout extends RenderableView {
                 }
             })
             .show();
+    }
+
+    private static void openPlantUMLDocs() {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse("https://plantuml.com"));
+        App._startActivity(i);
     }
 }

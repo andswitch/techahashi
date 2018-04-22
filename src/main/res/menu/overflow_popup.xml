@@ -18,5 +18,8 @@
     <item
         android:id="@+id/menu_config_plantuml"
         android:title="@string/om_config_plantuml" />
+    <item
+        android:id="@+id/menu_plantuml_docs"
+        android:title="@string/om_plantuml_docs" />
 </menu>
 
