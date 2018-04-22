@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Slide</string>
 
-    <string name="tutorial_text">SLIDE\n\nEach paragraph\nis a slide\n\nThis is a slide\n.\nwith a blank line\n\nTap on the preview\nto start the presentation.\nYou may also pick\na color scheme there.\n\nDone!\n\nDon\'t forget to export\nto PDF and share.</string>
+    <string name="tutorial_text">SLIDE\n\nEach paragraph\nis a slide\n\nThis is a slide\n.\nwith a blank line\n\nTap on the preview\nto start the presentation.\nYou may also pick\na color scheme there.\n\nDone!\n\nYou can also add UML!\n\nEnable PlantUML in the menu.\n\nstartuml\nBob->Alice : hello\nenduml\n\nstartuml nw 50%\nclass Foo\n.\nclass Bar\nenduml\n.\n#Hello\n.\nstartuml se 50%\nclass Baz\nenduml\n\nDon\'t forget to export\nto PDF and share.</string>
 
     <string name="pdf_name_prefix">Slide-</string>
     <string name="failed_export_pdf">Failed to export to PDF</string>
@@ -18,4 +18,11 @@
     <string name="om_style">Style</string>
     <string name="om_settings">Settings</string>
     <string name="om_export_pdf">Export to PDF</string>
+    <string name="om_config_plantuml">Configure PlantUML</string>
+
+    <string name="pm_warning">Note: a PlantUML server is used to create the diagram. The textual data is sent via internet to the configured URL. For confidential information, use a trusted URL with HTTPS.</string>
+    <string name="pm_enable">Enable PlantUML</string>
+    <string name="pm_plantuml_endpoint">PlantUML Endpoint URL</string>
+
+    <string name="pm_plantuml_preamble">The configured text below is added at the start of every UML diagram.</string>
 </resources>

@@ -15,5 +15,8 @@
     <item
         android:id="@+id/menu_export_pdf"
         android:title="@string/om_export_pdf"/>
+    <item
+        android:id="@+id/menu_config_plantuml"
+        android:title="@string/om_config_plantuml" />
 </menu>
 

@@ -7,9 +7,33 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.view.Gravity;
 import android.view.View;
 
-import static trikita.anvil.DSL.*;
-
 import trikita.slide.R;
+
+import static trikita.anvil.DSL.CENTER;
+import static trikita.anvil.DSL.CENTER_HORIZONTAL;
+import static trikita.anvil.DSL.FILL;
+import static trikita.anvil.DSL.WRAP;
+import static trikita.anvil.DSL.alignParentBottom;
+import static trikita.anvil.DSL.alignParentEnd;
+import static trikita.anvil.DSL.alignParentTop;
+import static trikita.anvil.DSL.background;
+import static trikita.anvil.DSL.backgroundColor;
+import static trikita.anvil.DSL.backgroundResource;
+import static trikita.anvil.DSL.dip;
+import static trikita.anvil.DSL.fitsSystemWindows;
+import static trikita.anvil.DSL.gravity;
+import static trikita.anvil.DSL.layoutGravity;
+import static trikita.anvil.DSL.margin;
+import static trikita.anvil.DSL.onClick;
+import static trikita.anvil.DSL.padding;
+import static trikita.anvil.DSL.sip;
+import static trikita.anvil.DSL.size;
+import static trikita.anvil.DSL.text;
+import static trikita.anvil.DSL.textColor;
+import static trikita.anvil.DSL.textSize;
+import static trikita.anvil.DSL.typeface;
+import static trikita.anvil.DSL.v;
+import static trikita.anvil.DSL.weight;
 
 public class Style {
     public final static String SLIDE_FONT = "sans-serif-light";
@@ -78,7 +102,7 @@ public class Style {
         public static void circle(int fgColor, int bgColor) {
             ShapeDrawable circle = new ShapeDrawable(new OvalShape());
             circle.getPaint().setColor(bgColor);
-            backgroundDrawable(circle);
+            background(circle);
 
             size(dip(48), dip(48));
             layoutGravity(CENTER_HORIZONTAL);

@@ -4,10 +4,9 @@ import android.app.Application;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
-import trikita.jedux.Logger;
 import trikita.jedux.Store;
-import trikita.slide.middleware.StorageController;
 import trikita.slide.middleware.PersistanceController;
+import trikita.slide.middleware.StorageController;
 import trikita.slide.middleware.WindowController;
 
 public class App extends Application {

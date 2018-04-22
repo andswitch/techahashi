@@ -1,16 +1,16 @@
 package trikita.slide;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
+import java.util.List;
+
 import trikita.jedux.Action;
 import trikita.jedux.Store;
-
-import java.util.List;
 
 @Value.Immutable
 @Gson.TypeAdapters
@@ -27,6 +27,10 @@ public abstract class State {
     public abstract boolean toolbarShown();
 
     public abstract int colorScheme();
+
+    public abstract boolean plantUMLEnabled();
+    public abstract String plantUMLEndPoint();
+    public abstract String plantUMLPreamble();
 
     @Value.Lazy
     public List<Slide> slides() {
@@ -60,6 +64,15 @@ public abstract class State {
                     return ImmutableState.copyOf(s).withToolbarShown(!s.toolbarShown());
                 case SET_COLOR_SCHEME:
                     return ImmutableState.copyOf(s).withColorScheme((Integer) a.value);
+                case CONFIGURE_PLANTUML:
+                    Pair<Boolean,Pair<String,String>> configuration = (Pair<Boolean,Pair<String,String>>)a.value;
+                    boolean enabled = configuration.first;
+                    String endPoint = configuration.second.first;
+                    String preamble = configuration.second.second;
+                    return ImmutableState.copyOf(s)
+                            .withPlantUMLEnabled(enabled)
+                            .withPlantUMLEndPoint(endPoint)
+                            .withPlantUMLPreamble(preamble);
             }
             return s;
         }
@@ -74,6 +87,9 @@ public abstract class State {
                     .colorScheme(0)
                     .presentationMode(false)
                     .toolbarShown(true)
+                    .plantUMLEnabled(false)
+                    .plantUMLEndPoint("https://plantuml.nitorio.us/png")
+                    .plantUMLPreamble("skinparam backgroundcolor transparent\nskinparam dpi 300")
                     .build();
         }
     }

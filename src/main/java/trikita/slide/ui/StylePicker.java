@@ -13,7 +13,20 @@ import trikita.jedux.Action;
 import trikita.slide.ActionType;
 import trikita.slide.App;
 
-import static trikita.anvil.DSL.*;
+import static trikita.anvil.DSL.CENTER;
+import static trikita.anvil.DSL.FILL;
+import static trikita.anvil.DSL.WRAP;
+import static trikita.anvil.DSL.adapter;
+import static trikita.anvil.DSL.dip;
+import static trikita.anvil.DSL.gravity;
+import static trikita.anvil.DSL.gridView;
+import static trikita.anvil.DSL.numColumns;
+import static trikita.anvil.DSL.onItemClick;
+import static trikita.anvil.DSL.padding;
+import static trikita.anvil.DSL.size;
+import static trikita.anvil.DSL.stretchMode;
+import static trikita.anvil.DSL.textView;
+import static trikita.anvil.DSL.verticalSpacing;
 
 public class StylePicker extends RenderableView {
 
