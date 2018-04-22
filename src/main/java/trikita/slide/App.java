@@ -1,6 +1,7 @@
 package trikita.slide;
 
 import android.app.Application;
+import android.content.Intent;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
@@ -51,5 +52,9 @@ public class App extends Application {
 
     public static State dispatch(Action<ActionType, ?> action) {
         return instance.store.dispatch(action);
+    }
+
+    public static void _startActivity(Intent i) {
+        instance.startActivity(i);
     }
 }

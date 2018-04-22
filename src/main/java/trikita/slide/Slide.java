@@ -252,7 +252,7 @@ public class Slide {
             String lineT = line.trim();
 
             if (inUML) {
-                if (lineT.toLowerCase().equals("enduml")) {
+                if (lineT.toLowerCase().equals("@enduml")) {
                     outLines.add(processPlantUML(TextUtils.join("\n", umlLines)) + bgArgs);
                     inUML = false;
                     umlLines = null;
@@ -264,10 +264,10 @@ public class Slide {
                         umlLines.add(line);
                 }
             } else {
-                if (lineT.toLowerCase().startsWith("startuml")) {
+                if (lineT.toLowerCase().startsWith("@startuml")) {
                     umlLines = new ArrayList<>();
                     inUML = true;
-                    bgArgs = lineT.substring("startuml".length());
+                    bgArgs = lineT.substring("@startuml".length());
                     if(!bgArgs.isEmpty() && bgArgs.charAt(0) != ' ') bgArgs = " " + bgArgs;
                 } else
                     outLines.add(line);
