@@ -20,3 +20,5 @@
   menu because of the confidentiality issues. Users should be aware
   that an external server is used and the diagram data is sent via
   internet.*
+* Add the ability to start and end monospace text with a back tick
+  "`" just like emphasis with "*".
