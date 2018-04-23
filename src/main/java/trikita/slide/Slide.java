@@ -87,6 +87,7 @@ public class Slide {
 
     private Slide(String s) {
         int emSpanStart = -1;
+        int codeSpanStart = -1;
         for (String line : s.split("\n")) {
             if (line.startsWith("@")) {
                 backgrounds.add(new Background(line.substring(1)));
@@ -116,6 +117,17 @@ public class Slide {
                                 text.append('*');
                             }
                             emSpanStart = -1;
+                        }
+                    } else if (c == '`') {
+                        if (codeSpanStart == -1) {
+                            codeSpanStart = text.length();
+                        } else {
+                            if (codeSpanStart != text.length()) {
+                                text.setSpan(new TypefaceSpan("monospace"), codeSpanStart, text.length(), 0);
+                            } else {
+                                text.append('`');
+                            }
+                            codeSpanStart = -1;
                         }
                     } else {
                         text.append(c);
@@ -232,7 +244,7 @@ public class Slide {
     public static List<Slide> parse(String s) {
         List<Slide> slides = new ArrayList<>();
 
-        String[] paragraphs = s.split("(\n\\s*){2,}");
+        String[] paragraphs = s.split("(\n){2,}");
 
         if(App.getState().plantUMLEnabled())
             paragraphs = joinPlantUMLDiagrams(paragraphs);
