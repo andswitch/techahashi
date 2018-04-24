@@ -92,7 +92,7 @@ public class Style {
             margin(dip(12));
             gravity(Gravity.CENTER);
             text(ICONS[MENU_BUTTON]);
-            typeface("MaterialIcons-Regular.ttf");
+            typeface("fonts/MaterialIcons-Regular.ttf");
             textSize(sip(26));
             textColor(0xcc555555);
         }
@@ -119,7 +119,7 @@ public class Style {
         public static void itemSelected() {
             text(ICONS[CHECK_BUTTON]);
             textSize(sip(24));
-            typeface("MaterialIcons-Regular.ttf");
+            typeface("fonts/MaterialIcons-Regular.ttf");
         }
     }
 
@@ -141,7 +141,7 @@ public class Style {
             text(ICONS[CLOSE_BUTTON]);
             textSize(sip(30));
             textColor(COLOR_SCHEMES[scheme][3]);
-            typeface("MaterialIcons-Regular.ttf");
+            typeface("fonts/MaterialIcons-Regular.ttf");
             backgroundResource(COLOR_SCHEMES[scheme][2]);
         }
     }
