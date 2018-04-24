@@ -104,9 +104,9 @@ public class Slide {
                 if (line.startsWith(".")) {
                     line = line.substring(1);
                 }
-                // Handle emphasis
                 for (int i = 0; i < line.length(); i++) {
                     char c = line.charAt(i);
+                    // Handle emphasis
                     if (c == '*') {
                         if (emSpanStart == -1) {
                             emSpanStart = text.length();
@@ -118,6 +118,7 @@ public class Slide {
                             }
                             emSpanStart = -1;
                         }
+                    // Handle inline code
                     } else if (c == '`') {
                         if (codeSpanStart == -1) {
                             codeSpanStart = text.length();
@@ -208,7 +209,6 @@ public class Slide {
 
         int w = (int) (width * (1 - margin * 2));
         int h = (int) (height * (1 - margin * 2));
-
 
         for (int textSize = height; textSize > 1; textSize--) {
             textPaint.setTextSize(textSize);

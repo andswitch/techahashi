@@ -3,6 +3,9 @@ package trikita.slide.middleware;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorSpace;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,6 +32,7 @@ import trikita.slide.R;
 import trikita.slide.Slide;
 import trikita.slide.State;
 import trikita.slide.ui.Style;
+
 
 public class StorageController implements Store.Middleware<Action<ActionType, ?>, State> {
     public static final int OPEN_DOCUMENT_REQUEST_CODE = 43;
@@ -69,7 +73,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             createPdf((Activity) action.value);
             return;
         } else if (action.type == ActionType.EXPORT_PDF) {
-            new PdfExportTask(store, (Uri) action.value).execute();
+            new PdfExportTask(store, (Uri) action.value, mContext).execute();
             return;
         } else if (action.type == ActionType.PICK_IMAGE) {
             pickImage((Activity) action.value);
@@ -172,12 +176,14 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         a.startActivityForResult(intent, EXPORT_PDF_REQUEST_CODE);
     }
 
-    private class PdfExportTask extends AsyncTask<Void, Void, Boolean> {
+    private static class PdfExportTask extends AsyncTask<Void, Void, Boolean> {
 
+        private final Context context;
         private final Store<Action<ActionType, ?>, State> store;
         private final Uri uri;
 
-        public PdfExportTask(Store<Action<ActionType, ?>, State> store, Uri uri) {
+        PdfExportTask(Store<Action<ActionType, ?>, State> store, Uri uri, Context ctx) {
+            this.context = ctx;
             this.store = store;
             this.uri = uri;
         }
@@ -187,22 +193,26 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
             try {
-                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(640, 640 * 9 / 16, 1).create();
+                int width = 1920;
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
 
                 for (Slide slide : store.getState().slides()) {
-                    PdfDocument.Page page = document.startPage(pageInfo);
-                    page.getCanvas().drawColor(Style.COLOR_SCHEMES[store.getState().colorScheme()][1]);
-                    slide.render(mContext,
-                            page.getCanvas(),
-                            page.getCanvas().getWidth(), page.getCanvas().getHeight(),
+                    Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas c = new Canvas(bmp);
+                    c.drawColor(Style.COLOR_SCHEMES[store.getState().colorScheme()][1]);
+                    slide.render(context,
+                            c,
+                            c.getWidth(), c.getHeight(),
                             Style.SLIDE_FONT,
                             Style.COLOR_SCHEMES[App.getState().colorScheme()][0],
                             Style.COLOR_SCHEMES[App.getState().colorScheme()][1],
                             true);
+                    PdfDocument.Page page = document.startPage(pageInfo);
+                    page.getCanvas().drawBitmap(bmp, 0, 0, null);
                     document.finishPage(page);
                 }
 
-                pfd = mContext.getContentResolver().openFileDescriptor(uri, "w");
+                pfd = context.getContentResolver().openFileDescriptor(uri, "w");
                 if (pfd != null) {
                     FileOutputStream fos = new FileOutputStream(pfd.getFileDescriptor());
                     document.writeTo(fos);
@@ -225,7 +235,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         protected void onPostExecute(Boolean ok) {
             super.onPostExecute(ok);
             if (!ok) {
-                Toast.makeText(mContext, mContext.getString(R.string.failed_export_pdf), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, context.getString(R.string.failed_export_pdf), Toast.LENGTH_LONG).show();
             }
         }
     }
