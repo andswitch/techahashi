@@ -141,6 +141,8 @@ public class MainLayout extends RenderableView {
                 App.dispatch(new Action<>(ActionType.PICK_IMAGE, (Activity) v.getContext()));
             } else if (item.getItemId() == R.id.menu_style) {
                 openStylePicker();
+            } else if (item.getItemId() == R.id.menu_template) {
+                openTemplateDialog();
             //} else if (item.getItemId() == R.id.menu_settings) {
             } else if (item.getItemId() == R.id.menu_export_pdf) {
                 App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) v.getContext()));
@@ -183,14 +185,23 @@ public class MainLayout extends RenderableView {
         txtUrl.setText(App.getState().plantUMLEndPoint());
         contents.addView(txtUrl);
 
-        TextView preamble = new TextView(getContext());
-        preamble.setText(R.string.pm_plantuml_preamble);
-        contents.addView(preamble);
+        TextView templateBefore = new TextView(getContext());
+        templateBefore.setText(R.string.pm_plantuml_template_before);
+        contents.addView(templateBefore);
 
-        EditText txtPreamble = new EditText(getContext());
-        txtPreamble.setSingleLine(false);
-        txtPreamble.setText(App.getState().plantUMLPreamble());
-        contents.addView(txtPreamble);
+        EditText txtTemplateBefore = new EditText(getContext());
+        txtTemplateBefore.setSingleLine(false);
+        txtTemplateBefore.setText(App.getState().plantUMLTemplateBefore());
+        contents.addView(txtTemplateBefore);
+
+        TextView templateAfter = new TextView(getContext());
+        templateAfter.setText(R.string.pm_plantuml_template_after);
+        contents.addView(templateAfter);
+
+        EditText txtTemplateAfter = new EditText(getContext());
+        txtTemplateAfter.setSingleLine(false);
+        txtTemplateAfter.setText(App.getState().plantUMLTemplateAfter());
+        contents.addView(txtTemplateAfter);
 
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.om_config_plantuml)
@@ -199,7 +210,8 @@ public class MainLayout extends RenderableView {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     App.dispatch(new Action<>(ActionType.CONFIGURE_PLANTUML,
                         new Pair<>(enable.isChecked(),
-                            new Pair<>(txtUrl.getText().toString(), txtPreamble.getText().toString()))));
+                            new Pair<>(txtUrl.getText().toString(),
+                                new Pair<>(txtTemplateBefore.getText().toString(), txtTemplateAfter.getText().toString())))));
                 }
             })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -213,5 +225,44 @@ public class MainLayout extends RenderableView {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse("https://plantuml.com"));
         App._startActivity(i);
+    }
+
+    private void openTemplateDialog() {
+        LinearLayout contents = new LinearLayout(getContext());
+        contents.setOrientation(LinearLayout.VERTICAL);
+
+        TextView before = new TextView(getContext());
+        before.setText(R.string.template_before);
+        contents.addView(before);
+
+        EditText txtBefore = new EditText(getContext());
+        txtBefore.setSingleLine(false);
+        txtBefore.setText(App.getState().templateBefore());
+        contents.addView(txtBefore);
+
+        TextView after = new TextView(getContext());
+        after.setText(R.string.template_after);
+        contents.addView(after);
+
+        EditText txtAfter = new EditText(getContext());
+        txtAfter.setSingleLine(false);
+        txtAfter.setText(App.getState().templateAfter());
+        contents.addView(txtAfter);
+
+        new AlertDialog.Builder(getContext())
+            .setTitle(R.string.om_template)
+            .setView(contents)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    App.dispatch(new Action<>(ActionType.SET_TEMPLATE,
+                        new Pair<>(txtBefore.getText().toString(),
+                                    txtAfter.getText().toString())));
+                }
+            })
+            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            })
+            .show();
     }
 }

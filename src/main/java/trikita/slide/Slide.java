@@ -250,10 +250,11 @@ public class Slide {
             paragraphs = joinPlantUMLDiagrams(paragraphs);
 
         for (String par : paragraphs) {
+            String finalPar = (App.getState().templateBefore() + par + App.getState().templateAfter()).trim();
             if(App.getState().plantUMLEnabled())
-                slides.add(new Slide(parsePlantUML(par)));
+                slides.add(new Slide(parsePlantUML(finalPar)));
             else
-                slides.add(new Slide(par));
+                slides.add(new Slide(finalPar));
         }
         return slides;
     }
@@ -325,9 +326,9 @@ public class Slide {
 
     private static String processPlantUML(String s) {
         try {
-            String payload = App.getState().plantUMLPreamble() + "\n" + s;
+            String payload = App.getState().plantUMLTemplateBefore() + s + App.getState().plantUMLTemplateAfter();
             return "@" + App.getState().plantUMLEndPoint() +
-                    "/" + encodePlantUML(payload);
+                    "/" + encodePlantUML(payload.trim());
         } catch (Exception e) {
             return "@http://s2.quickmeme.com/img/17/17637236ce6b1eb8a807f5b871c81b0269d72ef2a89265e1b23cf3f8e741a6d2.jpg";
         }

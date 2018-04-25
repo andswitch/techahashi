@@ -30,7 +30,12 @@ public abstract class State {
 
     public abstract boolean plantUMLEnabled();
     public abstract String plantUMLEndPoint();
-    public abstract String plantUMLPreamble();
+
+    public abstract String plantUMLTemplateBefore();
+    public abstract String plantUMLTemplateAfter();
+
+    public abstract String templateBefore();
+    public abstract String templateAfter();
 
     @Value.Lazy
     public List<Slide> slides() {
@@ -65,14 +70,21 @@ public abstract class State {
                 case SET_COLOR_SCHEME:
                     return ImmutableState.copyOf(s).withColorScheme((Integer) a.value);
                 case CONFIGURE_PLANTUML:
-                    Pair<Boolean,Pair<String,String>> configuration = (Pair<Boolean,Pair<String,String>>)a.value;
+                    Pair<Boolean,Pair<String,Pair<String,String>>> configuration = (Pair<Boolean,Pair<String,Pair<String,String>>>)a.value;
                     boolean enabled = configuration.first;
                     String endPoint = configuration.second.first;
-                    String preamble = configuration.second.second;
+                    String templateBefore = configuration.second.second.first;
+                    String templateAfter = configuration.second.second.second;
                     return ImmutableState.copyOf(s)
                             .withPlantUMLEnabled(enabled)
                             .withPlantUMLEndPoint(endPoint)
-                            .withPlantUMLPreamble(preamble);
+                            .withPlantUMLTemplateBefore(templateBefore)
+                            .withPlantUMLTemplateAfter(templateAfter);
+                case SET_TEMPLATE:
+                    Pair<String,String> beforeAfter = (Pair<String,String>)a.value;
+                    return ImmutableState.copyOf(s)
+                            .withTemplateBefore(beforeAfter.first)
+                            .withTemplateAfter(beforeAfter.second);
             }
             return s;
         }
@@ -89,7 +101,10 @@ public abstract class State {
                     .toolbarShown(true)
                     .plantUMLEnabled(false)
                     .plantUMLEndPoint("https://plantuml.nitorio.us/png")
-                    .plantUMLPreamble("skinparam backgroundcolor transparent\nskinparam dpi 300")
+                    .plantUMLTemplateBefore("skinparam backgroundcolor transparent\nskinparam dpi 300\n")
+                    .plantUMLTemplateAfter("")
+                    .templateBefore("")
+                    .templateAfter("")
                     .build();
         }
     }

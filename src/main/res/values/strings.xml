@@ -24,6 +24,12 @@
     <string name="pm_enable">Enable PlantUML</string>
     <string name="pm_plantuml_endpoint">PlantUML Endpoint URL</string>
 
-    <string name="pm_plantuml_preamble">The configured text below is added at the start of every UML diagram.</string>
+    <string name="pm_plantuml_template_before">The configured text below is inserted at the beginning of every UML diagram.</string>
+    <string name="pm_plantuml_template_after">The configured text below is inserted at the end of every UML diagram.</string>
+
     <string name="om_plantuml_docs">PlantUML docs</string>
+    <string name="om_template">Template</string>
+
+    <string name="template_before">The configured text below is inserted at the beginning of every slide.</string>
+    <string name="template_after">The configured text below is inserted at the end of every slide.</string>
 </resources>

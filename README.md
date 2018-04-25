@@ -13,9 +13,11 @@
   image.
 * Diagrams are rendered as normal Backgrounds.
 * Which server is used can be configured.
-* "Diagram preamble" can be configured, this allows one to put global
+* "Diagram template" can be configured, this allows one to put global
   settings for all diagrams. Some are really useful (transparent
   background and image resolution).
+* "Slide template" can be configured, this allows you to put text at
+  the start or end of every slide.
 * *PlantUML is disabled by default, needs to be enabled in the overlay
   menu because of the confidentiality issues. Users should be aware
   that an external server is used and the diagram data is sent via
