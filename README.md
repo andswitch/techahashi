@@ -27,3 +27,4 @@
 * When exporting to PDF, render the Slide to a Bitmap and then render
   that to PDF. This is uglier, but it allows you to use Emoji in your
   PDFs. :)
+* Added the ability to select resolution when exporting PDF.
