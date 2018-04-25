@@ -13,6 +13,9 @@
         <!--android:id="@+id/menu_settings"-->
         <!--android:title="@string/om_settings"/>-->
     <item
+        android:id="@+id/menu_template"
+        android:title="@string/om_template" />
+    <item
         android:id="@+id/menu_export_pdf"
         android:title="@string/om_export_pdf"/>
     <item

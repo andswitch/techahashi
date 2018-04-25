@@ -20,5 +20,6 @@ public enum ActionType {
     CREATE_PDF,
     EXPORT_PDF,
 
-    CONFIGURE_PLANTUML
+    CONFIGURE_PLANTUML,
+    SET_TEMPLATE
 }
