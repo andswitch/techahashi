@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Pair;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import trikita.anvil.Anvil;
@@ -145,7 +147,8 @@ public class MainLayout extends RenderableView {
                 openTemplateDialog();
             //} else if (item.getItemId() == R.id.menu_settings) {
             } else if (item.getItemId() == R.id.menu_export_pdf) {
-                App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) v.getContext()));
+                openExportPDFDialog();
+                //App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) v.getContext()));
             } else if (item.getItemId() == R.id.menu_config_plantuml) {
                 openConfigPlantUMLDialog();
             } else if (item.getItemId() == R.id.menu_plantuml_docs) {
@@ -257,6 +260,35 @@ public class MainLayout extends RenderableView {
                     App.dispatch(new Action<>(ActionType.SET_TEMPLATE,
                         new Pair<>(txtBefore.getText().toString(),
                                     txtAfter.getText().toString())));
+                }
+            })
+            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            })
+            .show();
+    }
+
+    private void openExportPDFDialog() {
+        LinearLayout contents = new LinearLayout(getContext());
+        contents.setOrientation(LinearLayout.VERTICAL);
+
+        Spinner spinner = new Spinner(getContext());
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+            R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(App.getState().pdfResolution());
+        contents.addView(spinner);
+
+        new AlertDialog.Builder(getContext())
+            .setTitle(R.string.select_resolution)
+            .setView(contents)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    int selected = spinner.getSelectedItemPosition();
+                    App.dispatch(new Action<>(ActionType.SET_PDF_RESOLUTION, selected));
+                    App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) getContext()));
                 }
             })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

@@ -37,6 +37,8 @@ public abstract class State {
     public abstract String templateBefore();
     public abstract String templateAfter();
 
+    public abstract int pdfResolution();
+
     @Value.Lazy
     public List<Slide> slides() {
         return Slide.parse(text());
@@ -85,6 +87,9 @@ public abstract class State {
                     return ImmutableState.copyOf(s)
                             .withTemplateBefore(beforeAfter.first)
                             .withTemplateAfter(beforeAfter.second);
+                case SET_PDF_RESOLUTION:
+                    return ImmutableState.copyOf(s)
+                            .withPdfResolution((Integer)a.value);
             }
             return s;
         }
@@ -105,6 +110,7 @@ public abstract class State {
                     .plantUMLTemplateAfter("")
                     .templateBefore("")
                     .templateAfter("")
+                    .pdfResolution(1)
                     .build();
         }
     }

@@ -12,6 +12,8 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
+import android.util.Pair;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -70,7 +72,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             dumpToFile(true);
         } else if (action.type == ActionType.CREATE_PDF) {
             dumpToFile(false);
-            createPdf((Activity) action.value);
+            createPdf((Activity)action.value);
             return;
         } else if (action.type == ActionType.EXPORT_PDF) {
             new PdfExportTask(store, (Uri) action.value, mContext).execute();
@@ -193,7 +195,28 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
             try {
-                int width = 1920;
+                ArrayAdapter<CharSequence> resolutions = ArrayAdapter.createFromResource(context,
+                    R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
+
+                String resolution = resolutions.getItem(store.getState().pdfResolution()).toString();
+
+                int width;
+                switch(resolution) {
+                case "720p":
+                    width = 1280;
+                    break;
+                case "1080p":
+                default:
+                    width = 1920;
+                    break;
+                case "4K":
+                    width = 3840;
+                    break;
+                case "8K":
+                    width = 7680;
+                    break;
+                }
+
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
 
                 for (Slide slide : store.getState().slides()) {
