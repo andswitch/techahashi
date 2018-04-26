@@ -37,7 +37,7 @@ public class App extends Application {
                 this.windowController,
                 sc);
 
-        sc.dumpToFile(false);   // false - with no delay
+        //sc.dumpToFile(false);   // false - with no delay
 
         this.store.subscribe(Anvil::render);
     }
@@ -52,9 +52,5 @@ public class App extends Application {
 
     public static State dispatch(Action<ActionType, ?> action) {
         return instance.store.dispatch(action);
-    }
-
-    public static void _startActivity(Intent i) {
-        instance.startActivity(i);
     }
 }

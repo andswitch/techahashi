@@ -28,3 +28,8 @@
   that to PDF. This is uglier, but it allows you to use Emoji in your
   PDFs. :)
 * Added the ability to select resolution when exporting PDF.
+* Replaced general open/save document functionality with a
+  "Presentation Deck". Simply swipe left or right to go to a
+  previous/next presentation. A new one is created if the last one
+  is not a copy of the previous one. The last presentation is removed
+  if it's either empty or if it's a copy of the previous one.
