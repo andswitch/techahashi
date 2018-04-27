@@ -21,6 +21,7 @@ import trikita.anvil.RenderableView;
 import trikita.jedux.Action;
 import trikita.slide.ActionType;
 import trikita.slide.App;
+import trikita.slide.Presentation;
 import trikita.slide.R;
 
 import static trikita.anvil.DSL.FILL;
@@ -70,7 +71,7 @@ public class MainLayout extends RenderableView {
             v(Editor.class, () -> {
                 size(FILL, FILL);
                 gravity(TOP | START);
-                text(App.getState().text());
+                text(App.getState().getCurrentPresentation().text());
                 Style.Editor.textStyle();
                 background(null);
                 init(() -> {
@@ -106,7 +107,7 @@ public class MainLayout extends RenderableView {
     private void presentation() {
         relativeLayout(() -> {
             size(FILL, FILL);
-            Style.Preview.background(App.getState().colorScheme());
+            Style.Preview.background(App.getState().getCurrentPresentation().colorScheme());
 
             v(Preview.class, () -> {
                 size(FILL, WRAP);
@@ -123,7 +124,7 @@ public class MainLayout extends RenderableView {
             });
 
             button(() -> {
-                Style.Preview.button(App.getState().colorScheme());
+                Style.Preview.button(App.getState().getCurrentPresentation().colorScheme());
                 margin(0, 0, 0, dip(25));
                 alignParentBottom();
                 centerHorizontal();
@@ -171,6 +172,7 @@ public class MainLayout extends RenderableView {
     }
 
     private void openConfigPlantUMLDialog() {
+        Presentation p = App.getState().getCurrentPresentation();
         LinearLayout contents = new LinearLayout(getContext());
         contents.setOrientation(LinearLayout.VERTICAL);
 
@@ -179,13 +181,13 @@ public class MainLayout extends RenderableView {
         contents.addView(warning);
 
         CheckBox enable = new CheckBox(getContext());
-        enable.setChecked(App.getState().plantUMLEnabled());
+        enable.setChecked(p.plantUMLEnabled());
         enable.setText(R.string.pm_enable);
         contents.addView(enable);
 
         EditText txtUrl = new EditText(getContext());
         txtUrl.setHint(R.string.pm_plantuml_endpoint);
-        txtUrl.setText(App.getState().plantUMLEndPoint());
+        txtUrl.setText(p.plantUMLEndPoint());
         contents.addView(txtUrl);
 
         TextView templateBefore = new TextView(getContext());
@@ -194,7 +196,7 @@ public class MainLayout extends RenderableView {
 
         EditText txtTemplateBefore = new EditText(getContext());
         txtTemplateBefore.setSingleLine(false);
-        txtTemplateBefore.setText(App.getState().plantUMLTemplateBefore());
+        txtTemplateBefore.setText(p.plantUMLTemplateBefore());
         contents.addView(txtTemplateBefore);
 
         TextView templateAfter = new TextView(getContext());
@@ -203,7 +205,7 @@ public class MainLayout extends RenderableView {
 
         EditText txtTemplateAfter = new EditText(getContext());
         txtTemplateAfter.setSingleLine(false);
-        txtTemplateAfter.setText(App.getState().plantUMLTemplateAfter());
+        txtTemplateAfter.setText(p.plantUMLTemplateAfter());
         contents.addView(txtTemplateAfter);
 
         new AlertDialog.Builder(getContext())
@@ -231,6 +233,7 @@ public class MainLayout extends RenderableView {
     }
 
     private void openTemplateDialog() {
+        Presentation p = App.getState().getCurrentPresentation();
         LinearLayout contents = new LinearLayout(getContext());
         contents.setOrientation(LinearLayout.VERTICAL);
 
@@ -240,7 +243,7 @@ public class MainLayout extends RenderableView {
 
         EditText txtBefore = new EditText(getContext());
         txtBefore.setSingleLine(false);
-        txtBefore.setText(App.getState().templateBefore());
+        txtBefore.setText(p.templateBefore());
         contents.addView(txtBefore);
 
         TextView after = new TextView(getContext());
@@ -249,7 +252,7 @@ public class MainLayout extends RenderableView {
 
         EditText txtAfter = new EditText(getContext());
         txtAfter.setSingleLine(false);
-        txtAfter.setText(App.getState().templateAfter());
+        txtAfter.setText(p.templateAfter());
         contents.addView(txtAfter);
 
         new AlertDialog.Builder(getContext())
@@ -270,6 +273,7 @@ public class MainLayout extends RenderableView {
     }
 
     private void openExportPDFDialog() {
+        Presentation p = App.getState().getCurrentPresentation();
         LinearLayout contents = new LinearLayout(getContext());
         contents.setOrientation(LinearLayout.VERTICAL);
 
@@ -278,7 +282,7 @@ public class MainLayout extends RenderableView {
             R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setSelection(App.getState().pdfResolution());
+        spinner.setSelection(App.getState().getCurrentPresentation().pdfResolution());
         contents.addView(spinner);
 
         new AlertDialog.Builder(getContext())
