@@ -33,3 +33,4 @@
   previous/next presentation. A new one is created if the last one
   is not a copy of the previous one. The last presentation is removed
   if it's either empty or if it's a copy of the previous one.
+* Added separate settings for each presentation.

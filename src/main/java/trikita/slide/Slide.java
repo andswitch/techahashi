@@ -243,15 +243,16 @@ public class Slide {
 
     public static List<Slide> parse(String s) {
         List<Slide> slides = new ArrayList<>();
+        Presentation p = App.getState().getCurrentPresentation();
 
         String[] paragraphs = s.split("(\n){2,}");
 
-        if(App.getState().plantUMLEnabled())
+        if(p.plantUMLEnabled())
             paragraphs = joinPlantUMLDiagrams(paragraphs);
 
         for (String par : paragraphs) {
-            String finalPar = (App.getState().templateBefore() + par + App.getState().templateAfter()).trim();
-            if(App.getState().plantUMLEnabled())
+            String finalPar = (p.templateBefore() + par + p.templateAfter()).trim();
+            if(p.plantUMLEnabled())
                 slides.add(new Slide(parsePlantUML(finalPar)));
             else
                 slides.add(new Slide(finalPar));
@@ -326,8 +327,8 @@ public class Slide {
 
     private static String processPlantUML(String s) {
         try {
-            String payload = App.getState().plantUMLTemplateBefore() + s + App.getState().plantUMLTemplateAfter();
-            return "@" + App.getState().plantUMLEndPoint() +
+            String payload = App.getState().getCurrentPresentation().plantUMLTemplateBefore() + s + App.getState().getCurrentPresentation().plantUMLTemplateAfter();
+            return "@" + App.getState().getCurrentPresentation().plantUMLEndPoint() +
                     "/" + encodePlantUML(payload.trim());
         } catch (Exception e) {
             return "@http://s2.quickmeme.com/img/17/17637236ce6b1eb8a807f5b871c81b0269d72ef2a89265e1b23cf3f8e741a6d2.jpg";

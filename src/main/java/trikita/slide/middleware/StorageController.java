@@ -30,6 +30,7 @@ import trikita.jedux.Action;
 import trikita.jedux.Store;
 import trikita.slide.ActionType;
 import trikita.slide.App;
+import trikita.slide.Presentation;
 import trikita.slide.R;
 import trikita.slide.Slide;
 import trikita.slide.State;
@@ -81,8 +82,9 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             pickImage((Activity) action.value);
             return;
         } else if (action.type == ActionType.INSERT_IMAGE) {
-            String s = store.getState().text();
-            int c = store.getState().cursor();
+            Presentation p = store.getState().getCurrentPresentation();
+            String s = p.text();
+            int c = p.cursor();
             String chunk = s.substring(0, c);
             int startOfLine = chunk.lastIndexOf("\n");
             if (startOfLine == -1) {
@@ -194,11 +196,12 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         protected Boolean doInBackground(Void... params) {
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
+            Presentation p = store.getState().getCurrentPresentation();
             try {
                 ArrayAdapter<CharSequence> resolutions = ArrayAdapter.createFromResource(context,
                     R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
 
-                String resolution = resolutions.getItem(store.getState().pdfResolution()).toString();
+                String resolution = resolutions.getItem(p.pdfResolution()).toString();
 
                 int width;
                 switch(resolution) {
@@ -219,16 +222,16 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
 
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
 
-                for (Slide slide : store.getState().slides()) {
+                for (Slide slide : p.slides()) {
                     Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
                     Canvas c = new Canvas(bmp);
-                    c.drawColor(Style.COLOR_SCHEMES[store.getState().colorScheme()][1]);
+                    c.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
                     slide.render(context,
                             c,
                             c.getWidth(), c.getHeight(),
                             Style.SLIDE_FONT,
-                            Style.COLOR_SCHEMES[App.getState().colorScheme()][0],
-                            Style.COLOR_SCHEMES[App.getState().colorScheme()][1],
+                            Style.COLOR_SCHEMES[p.colorScheme()][0],
+                            Style.COLOR_SCHEMES[p.colorScheme()][1],
                             true);
                     PdfDocument.Page page = document.startPage(pageInfo);
                     page.getCanvas().drawBitmap(bmp, 0, 0, null);
