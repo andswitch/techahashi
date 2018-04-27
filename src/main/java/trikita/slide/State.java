@@ -17,9 +17,6 @@ import trikita.jedux.Store;
 @Gson.TypeAdapters
 public abstract class State {
 
-    //@Nullable
-    //public abstract String uri();
-
     public abstract boolean presentationMode();
     public abstract boolean toolbarShown();
 
@@ -53,21 +50,18 @@ public abstract class State {
 
         public State reduce(Action<ActionType, ?> a, State s) {
             switch (a.type) {
-//                case LOAD_DOCUMENT:
-//                    return ImmutableState.copyOf(s)
-//                        .withUri((a.value).toString());
                 case SET_TEXT:
-                    return s.withCurrentPresentation(s.getCurrentPresentation().withText((String)a.value));
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation().withText((String)a.value));
                 case SET_CURSOR:
                     String text = s.getCurrentPresentation().text().substring(0, (Integer) a.value);
-                    return s.withCurrentPresentation(s.getCurrentPresentation()
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
                         .withPage(Slide.parse(text).size()-1)
                         .withCursor((Integer) a.value));
                 case NEXT_PAGE:
-                    return s.withCurrentPresentation(s.getCurrentPresentation()
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
                         .withPage(Math.min(s.getCurrentPresentation().page()+1, s.getCurrentPresentation().slides().size()-1)));
                 case PREV_PAGE:
-                    return s.withCurrentPresentation(s.getCurrentPresentation()
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
                         .withPage(Math.max(s.getCurrentPresentation().page()-1, 0)));
                 case OPEN_PRESENTATION:
                     return ImmutableState.copyOf(s).withPresentationMode(true);
@@ -76,25 +70,25 @@ public abstract class State {
                 case TOGGLE_TOOLBAR:
                     return ImmutableState.copyOf(s).withToolbarShown(!s.toolbarShown());
                 case SET_COLOR_SCHEME:
-                    return s.withCurrentPresentation(s.getCurrentPresentation().withColorScheme((Integer) a.value));
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation().withColorScheme((Integer) a.value));
                 case CONFIGURE_PLANTUML:
                     Pair<Boolean,Pair<String,Pair<String,String>>> configuration = (Pair<Boolean,Pair<String,Pair<String,String>>>)a.value;
                     boolean enabled = configuration.first;
                     String endPoint = configuration.second.first;
                     String templateBefore = configuration.second.second.first;
                     String templateAfter = configuration.second.second.second;
-                    return s.withCurrentPresentation(s.getCurrentPresentation()
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
                         .withPlantUMLEnabled(enabled)
                         .withPlantUMLEndPoint(endPoint)
                         .withPlantUMLTemplateBefore(templateBefore)
                         .withPlantUMLTemplateAfter(templateAfter));
                 case SET_TEMPLATE:
                     Pair<String,String> beforeAfter = (Pair<String,String>)a.value;
-                    return s.withCurrentPresentation(s.getCurrentPresentation()
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
                         .withTemplateBefore(beforeAfter.first)
                         .withTemplateAfter(beforeAfter.second));
                 case SET_PDF_RESOLUTION:
-                    return s.withCurrentPresentation(s.getCurrentPresentation()
+                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
                         .withPdfResolution((Integer)a.value));
                 case PREVIOUS_PRESENTATION:
                     if(s.currentPresentationIndex() == s.presentations().size()-1 && s.currentPresentationIndex() > 0
@@ -111,7 +105,7 @@ public abstract class State {
                             return ImmutableState.copyOf(s)
                                     .withCurrentPresentationIndex(newIndex);
                         } else {
-                            return s;
+                            return ImmutableState.copyOf(s);
                         }
                     }
                 case NEXT_PRESENTATION:
@@ -130,7 +124,7 @@ public abstract class State {
                             return ImmutableState.copyOf(s)
                                     .withCurrentPresentationIndex(newIndex);
                         } else {
-                            return s;
+                            return ImmutableState.copyOf(s);
                         }
                     }
             }

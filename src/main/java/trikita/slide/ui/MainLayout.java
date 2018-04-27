@@ -42,6 +42,7 @@ import static trikita.anvil.DSL.margin;
 import static trikita.anvil.DSL.onClick;
 import static trikita.anvil.DSL.onTextChanged;
 import static trikita.anvil.DSL.relativeLayout;
+import static trikita.anvil.DSL.selection;
 import static trikita.anvil.DSL.size;
 import static trikita.anvil.DSL.text;
 import static trikita.anvil.DSL.textView;
@@ -72,6 +73,7 @@ public class MainLayout extends RenderableView {
                 size(FILL, FILL);
                 gravity(TOP | START);
                 text(App.getState().getCurrentPresentation().text());
+                selection(App.getState().getCurrentPresentation().cursor());
                 Style.Editor.textStyle();
                 background(null);
                 init(() -> {
@@ -138,18 +140,14 @@ public class MainLayout extends RenderableView {
         PopupMenu menu = new PopupMenu(v.getContext(), v);
         menu.getMenuInflater().inflate(R.menu.overflow_popup, menu.getMenu());
         menu.setOnMenuItemClickListener(item -> {
-            //if (item.getItemId() == R.id.menu_open) {
-            //    App.dispatch(new Action<>(ActionType.OPEN_DOCUMENT, (Activity) v.getContext()));
-            /*} else */if (item.getItemId() == R.id.menu_insert_image) {
+            if (item.getItemId() == R.id.menu_insert_image) {
                 App.dispatch(new Action<>(ActionType.PICK_IMAGE, (Activity) v.getContext()));
             } else if (item.getItemId() == R.id.menu_style) {
                 openStylePicker();
             } else if (item.getItemId() == R.id.menu_template) {
                 openTemplateDialog();
-            //} else if (item.getItemId() == R.id.menu_settings) {
             } else if (item.getItemId() == R.id.menu_export_pdf) {
                 openExportPDFDialog();
-                //App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) v.getContext()));
             } else if (item.getItemId() == R.id.menu_config_plantuml) {
                 openConfigPlantUMLDialog();
             } else if (item.getItemId() == R.id.menu_plantuml_docs) {
