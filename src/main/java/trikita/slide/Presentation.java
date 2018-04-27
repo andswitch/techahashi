@@ -7,9 +7,6 @@ import org.immutables.value.Value;
 
 import java.util.List;
 
-import trikita.jedux.Action;
-import trikita.jedux.Store;
-
 @Value.Immutable
 @Gson.TypeAdapters
 public abstract class Presentation {

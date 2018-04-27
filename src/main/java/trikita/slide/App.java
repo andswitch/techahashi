@@ -1,7 +1,6 @@
 package trikita.slide;
 
 import android.app.Application;
-import android.content.Intent;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
@@ -14,6 +13,7 @@ public class App extends Application {
     private static App instance;
 
     private Store<Action<ActionType, ?>, State> store;
+    private PersistanceController persistanceController;
     private WindowController windowController;
 
     @Override
@@ -23,7 +23,7 @@ public class App extends Application {
 
         this.windowController = new WindowController();
 
-        PersistanceController persistanceController = new PersistanceController(this);
+        persistanceController = new PersistanceController(this);
         State initialState = persistanceController.getSavedState();
         if (initialState == null) {
             initialState = State.Default.build(this);
@@ -32,12 +32,9 @@ public class App extends Application {
 
         this.store = new Store<>(new State.Reducer(),
                 initialState,
-//                new Logger<>("Slide"),
                 persistanceController,
                 this.windowController,
                 sc);
-
-        //sc.dumpToFile(false);   // false - with no delay
 
         this.store.subscribe(Anvil::render);
     }
