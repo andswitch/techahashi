@@ -30,6 +30,7 @@ public class WindowController implements Store.Middleware<Action<ActionType, ?>,
                 case SET_COLOR_SCHEME:
                 case PREVIOUS_PRESENTATION:
                 case NEXT_PRESENTATION:
+                case REMOVE_PRESENTATION:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         mWindow.setStatusBarColor(Style.COLOR_SCHEMES[store.getState().getCurrentPresentation().colorScheme()][1]);
                     }

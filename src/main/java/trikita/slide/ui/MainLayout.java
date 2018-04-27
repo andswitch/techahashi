@@ -73,7 +73,6 @@ public class MainLayout extends RenderableView {
                 size(FILL, FILL);
                 gravity(TOP | START);
                 text(App.getState().getCurrentPresentation().text());
-                selection(App.getState().getCurrentPresentation().cursor());
                 Style.Editor.textStyle();
                 background(null);
                 init(() -> {
@@ -140,7 +139,9 @@ public class MainLayout extends RenderableView {
         PopupMenu menu = new PopupMenu(v.getContext(), v);
         menu.getMenuInflater().inflate(R.menu.overflow_popup, menu.getMenu());
         menu.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.menu_insert_image) {
+            if (item.getItemId() == R.id.menu_remove_presentation) {
+                openRemoveDialog();
+            } else if (item.getItemId() == R.id.menu_insert_image) {
                 App.dispatch(new Action<>(ActionType.PICK_IMAGE, (Activity) v.getContext()));
             } else if (item.getItemId() == R.id.menu_style) {
                 openStylePicker();
@@ -156,6 +157,23 @@ public class MainLayout extends RenderableView {
             return true;
         });
         menu.show();
+    }
+
+    private void openRemoveDialog() {
+        new AlertDialog.Builder(getContext())
+            .setTitle(getContext().getString(R.string.om_remove))
+            .setCancelable(true)
+            .setMessage(R.string.are_you_sure)
+            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    App.dispatch(new Action<>(ActionType.REMOVE_PRESENTATION, getContext()));
+                }
+            })
+            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            })
+            .show();
     }
 
     private void openStylePicker() {
@@ -209,7 +227,7 @@ public class MainLayout extends RenderableView {
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.om_config_plantuml)
             .setView(contents)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     App.dispatch(new Action<>(ActionType.CONFIGURE_PLANTUML,
                         new Pair<>(enable.isChecked(),
@@ -217,7 +235,7 @@ public class MainLayout extends RenderableView {
                                 new Pair<>(txtTemplateBefore.getText().toString(), txtTemplateAfter.getText().toString())))));
                 }
             })
-            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                 }
             })
@@ -256,14 +274,14 @@ public class MainLayout extends RenderableView {
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.om_template)
             .setView(contents)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     App.dispatch(new Action<>(ActionType.SET_TEMPLATE,
                         new Pair<>(txtBefore.getText().toString(),
                                     txtAfter.getText().toString())));
                 }
             })
-            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                 }
             })
@@ -286,14 +304,14 @@ public class MainLayout extends RenderableView {
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.select_resolution)
             .setView(contents)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     int selected = spinner.getSelectedItemPosition();
                     App.dispatch(new Action<>(ActionType.SET_PDF_RESOLUTION, selected));
                     App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) getContext()));
                 }
             })
-            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                 }
             })

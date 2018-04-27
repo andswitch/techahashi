@@ -92,7 +92,7 @@ public abstract class State {
                         .withPdfResolution((Integer)a.value));
                 case PREVIOUS_PRESENTATION:
                     if(s.currentPresentationIndex() == s.presentations().size()-1 && s.currentPresentationIndex() > 0
-                       && (s.getCurrentPresentation().text().trim().isEmpty() || s.getCurrentPresentation().text().equals(s.presentations().get(s.currentPresentationIndex()-1).text()))) {
+                       && s.getCurrentPresentation().text().trim().equals(((Context)a.value).getString(R.string.tutorial_text).trim())) {
                         this.vibrateOnPresentationChange((Context)a.value);
                         return ImmutableState.copyOf(s)
                                 .withPresentations(s.presentations().subList(0, s.currentPresentationIndex()))
@@ -109,8 +109,8 @@ public abstract class State {
                         }
                     }
                 case NEXT_PRESENTATION:
-                    if(!s.getCurrentPresentation().text().trim().isEmpty() && s.currentPresentationIndex() == s.presentations().size()-1
-                        && (s.currentPresentationIndex() == 0 || !s.getCurrentPresentation().text().equals(s.presentations().get(s.currentPresentationIndex()-1).text()))) {
+                    if(s.currentPresentationIndex() == s.presentations().size()-1
+                        && !s.getCurrentPresentation().text().trim().equals(((Context)a.value).getString(R.string.tutorial_text).trim())) {
                         this.vibrateOnPresentationChange((Context)a.value);
                         return ImmutableState.builder().from(s)
                                 .addPresentations(Presentation.Default.build((Context) a.value))
@@ -127,6 +127,16 @@ public abstract class State {
                             return ImmutableState.copyOf(s);
                         }
                     }
+                case REMOVE_PRESENTATION:
+                    ImmutableState t = ImmutableState.builder().from(s)
+                        .presentations(s.presentations().subList(0,s.currentPresentationIndex()))
+                        .addAllPresentations(s.presentations().subList(s.currentPresentationIndex()+1, s.presentations().size()))
+                        .currentPresentationIndex(0)
+                        .build();
+                    if(t.presentations().size() == 0)
+                        t = ImmutableState.copyOf(s)
+                            .withPresentations(Presentation.Default.build((Context)a.value));
+                    return t;
             }
             return s;
         }
