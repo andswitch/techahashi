@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_open"
-        android:enabled="false"
-        android:title="@string/om_open"
-        android:visible="false" />
+        android:id="@+id/menu_remove_presentation"
+        android:title="@string/om_remove" />
     <item
         android:id="@+id/menu_insert_image"
         android:title="@string/om_insert_image"/>
