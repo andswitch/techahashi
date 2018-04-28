@@ -43,4 +43,5 @@
     <string name="select_resolution">Select Resolution</string>
     <string name="om_remove">Remove Presentation</string>
     <string name="are_you_sure">Are you sure?</string>
+    <string name="completed_export_pdf">PDF Export Complete</string>
 </resources>

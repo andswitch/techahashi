@@ -33,3 +33,4 @@
   previous/next presentation. 
 * Add button to remove presentations.
 * Added separate settings for each presentation.
+* Added notification for PDF export.
