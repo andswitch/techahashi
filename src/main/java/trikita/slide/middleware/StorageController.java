@@ -9,6 +9,8 @@ import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import trikita.jedux.Action;
@@ -34,12 +37,22 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
     public static final int PICK_IMAGE_REQUEST_CODE = 44;
     public static final int EXPORT_PDF_REQUEST_CODE = 46;
 
-    private static final long FILE_WRITER_DELAY = 3000; // 3sec
-
     private Context mContext = null;
+
+    private static final String PDF_EXPORT_NOTIFICATION_CHANNEL = "SLIDEPDFEXP";
+    public static final int PDF_EXPORT_NOTIFICATION_ID = 0;
+    private NotificationManagerCompat notificationManager;
+    private NotificationCompat.Builder mBuilder;
 
     public StorageController(Context c) {
         mContext = c;
+
+        notificationManager = NotificationManagerCompat.from(mContext);
+        mBuilder = new NotificationCompat.Builder(mContext, PDF_EXPORT_NOTIFICATION_CHANNEL);
+        mBuilder.setContentTitle("Slide PDF Export")
+            .setContentText("Exporting...")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setPriority(NotificationCompat.PRIORITY_LOW);
     }
 
     @Override
@@ -48,7 +61,10 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             createPdf((Activity)action.value);
             return;
         } else if (action.type == ActionType.EXPORT_PDF) {
-            new PdfExportTask(store, (Uri) action.value, mContext).execute();
+            int PROGRESS_MAX = App.getState().getCurrentPresentation().slides().size();
+            mBuilder.setProgress(PROGRESS_MAX, 0, false);
+            notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
+            new PdfExportTask(store.getState().getCurrentPresentation(), (Uri) action.value, mContext, notificationManager, mBuilder).execute();
             return;
         } else if (action.type == ActionType.PICK_IMAGE) {
             pickImage((Activity) action.value);
@@ -80,23 +96,26 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         a.startActivityForResult(intent, EXPORT_PDF_REQUEST_CODE);
     }
 
-    private static class PdfExportTask extends AsyncTask<Void, Void, Boolean> {
+    private static class PdfExportTask extends AsyncTask<Void, Integer, Boolean> {
 
         private final Context context;
-        private final Store<Action<ActionType, ?>, State> store;
+        private final Presentation p;
         private final Uri uri;
+        private final NotificationManagerCompat notificationManager;
+        private final NotificationCompat.Builder mBuilder;
 
-        PdfExportTask(Store<Action<ActionType, ?>, State> store, Uri uri, Context ctx) {
+        PdfExportTask(Presentation p, Uri uri, Context ctx, NotificationManagerCompat notificationManager, NotificationCompat.Builder mBuilder) {
             this.context = ctx;
-            this.store = store;
+            this.p = p;
             this.uri = uri;
+            this.notificationManager = notificationManager;
+            this.mBuilder = mBuilder;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
-            Presentation p = store.getState().getCurrentPresentation();
             try {
                 ArrayAdapter<CharSequence> resolutions = ArrayAdapter.createFromResource(context,
                     R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
@@ -122,6 +141,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
 
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
 
+                int i = 1;
                 for (Slide slide : p.slides()) {
                     Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
                     Canvas c = new Canvas(bmp);
@@ -136,6 +156,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                     PdfDocument.Page page = document.startPage(pageInfo);
                     page.getCanvas().drawBitmap(bmp, 0, 0, null);
                     document.finishPage(page);
+                    publishProgress(i++, p.slides().size()+1);
                 }
 
                 pfd = context.getContentResolver().openFileDescriptor(uri, "w");
@@ -158,11 +179,20 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         }
 
         @Override
+        protected void onProgressUpdate(Integer... progress) {
+            mBuilder.setProgress(progress[1], progress[0], false);
+            notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
+        }
+
+        @Override
         protected void onPostExecute(Boolean ok) {
             super.onPostExecute(ok);
-            if (!ok) {
-                Toast.makeText(context, context.getString(R.string.failed_export_pdf), Toast.LENGTH_LONG).show();
-            }
+            if (!ok)
+                mBuilder.setContentText(context.getString(R.string.failed_export_pdf));
+            else
+                mBuilder.setContentText(context.getString(R.string.completed_export_pdf));
+            mBuilder.setProgress(0,0,false);
+            notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
         }
     }
 
