@@ -83,6 +83,7 @@ public class Slide {
     }
 
     private final List<Background> backgrounds = new ArrayList<>();
+    private final Map<String,CacheTarget> bitmaps = new HashMap<>();
     private final SpannableStringBuilder text = new SpannableStringBuilder();
 
     Slide(String s) {
@@ -177,6 +178,7 @@ public class Slide {
             if (img.url != null) {
                 Bitmap b = null;
                 CacheTarget cacheTarget = new CacheTarget();
+                bitmaps.put(img.url,cacheTarget);
                 RequestCreator request = Picasso.get()
                         .load(img.url);
                 if (img.scale > 0) {
