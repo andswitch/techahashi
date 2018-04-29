@@ -12,14 +12,12 @@ import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.TimeZone;
 
 import trikita.jedux.Action;
@@ -40,9 +38,9 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
     private Context mContext = null;
 
     private static final String PDF_EXPORT_NOTIFICATION_CHANNEL = "SLIDEPDFEXP";
-    public static final int PDF_EXPORT_NOTIFICATION_ID = 0;
-    private NotificationManagerCompat notificationManager;
-    private NotificationCompat.Builder mBuilder;
+    private static final int PDF_EXPORT_NOTIFICATION_ID = 0;
+    private final NotificationManagerCompat notificationManager;
+    private final NotificationCompat.Builder mBuilder;
 
     public StorageController(Context c) {
         mContext = c;
@@ -146,7 +144,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                     Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
                     Canvas c = new Canvas(bmp);
                     c.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
-                    slide.render(context,
+                    slide.render(
                             c,
                             c.getWidth(), c.getHeight(),
                             Style.SLIDE_FONT,

@@ -38,11 +38,6 @@ public class Editor extends EditText implements View.OnTouchListener {
     private float downY;
 
     @Override
-    public boolean performClick() {
-        return super.performClick();
-    }
-
-    @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch(event.getAction()){
         case MotionEvent.ACTION_DOWN:

@@ -28,26 +28,18 @@ import static trikita.anvil.DSL.FILL;
 import static trikita.anvil.DSL.START;
 import static trikita.anvil.DSL.TOP;
 import static trikita.anvil.DSL.WRAP;
-import static trikita.anvil.DSL.alignParentBottom;
 import static trikita.anvil.DSL.background;
-import static trikita.anvil.DSL.button;
-import static trikita.anvil.DSL.centerHorizontal;
 import static trikita.anvil.DSL.centerInParent;
-import static trikita.anvil.DSL.dip;
 import static trikita.anvil.DSL.frameLayout;
 import static trikita.anvil.DSL.gravity;
 import static trikita.anvil.DSL.init;
-import static trikita.anvil.DSL.linearLayout;
-import static trikita.anvil.DSL.margin;
 import static trikita.anvil.DSL.onClick;
 import static trikita.anvil.DSL.onTextChanged;
 import static trikita.anvil.DSL.relativeLayout;
-import static trikita.anvil.DSL.selection;
 import static trikita.anvil.DSL.size;
 import static trikita.anvil.DSL.text;
 import static trikita.anvil.DSL.textView;
 import static trikita.anvil.DSL.v;
-import static trikita.anvil.DSL.visibility;
 
 public class MainLayout extends RenderableView {
 
@@ -98,7 +90,6 @@ public class MainLayout extends RenderableView {
 
                 v(Preview.class, () -> {
                     Style.Editor.previewSize();
-                    onClick(v -> App.dispatch(new Action<>(ActionType.OPEN_PRESENTATION)));
                     Anvil.currentView().invalidate();
                 });
             });
@@ -108,29 +99,12 @@ public class MainLayout extends RenderableView {
     private void presentation() {
         relativeLayout(() -> {
             size(FILL, FILL);
-            Style.Preview.background(App.getState().getCurrentPresentation().colorScheme());
+            Style.Preview.background();
 
             v(Preview.class, () -> {
                 size(FILL, WRAP);
                 centerInParent();
                 Anvil.currentView().invalidate();
-            });
-
-            linearLayout(() -> {
-                size(FILL, FILL);
-
-                Style.Preview.touchPlaceholder(v -> App.dispatch(new Action<>(ActionType.PREV_PAGE)));
-                Style.Preview.touchPlaceholder(v -> App.dispatch(new Action<>(ActionType.TOGGLE_TOOLBAR)));
-                Style.Preview.touchPlaceholder(v -> App.dispatch(new Action<>(ActionType.NEXT_PAGE)));
-            });
-
-            button(() -> {
-                Style.Preview.button(App.getState().getCurrentPresentation().colorScheme());
-                margin(0, 0, 0, dip(25));
-                alignParentBottom();
-                centerHorizontal();
-                visibility(App.getState().toolbarShown());
-                onClick(v -> App.dispatch(new Action<>(ActionType.CLOSE_PRESENTATION)));
             });
         });
     }
@@ -298,7 +272,7 @@ public class MainLayout extends RenderableView {
             R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setSelection(App.getState().getCurrentPresentation().pdfResolution());
+        spinner.setSelection(p.pdfResolution());
         contents.addView(spinner);
 
         new AlertDialog.Builder(getContext())

@@ -1,6 +1,5 @@
 package trikita.slide;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -59,7 +58,7 @@ public class Slide {
         private final float scale;
         private final int gravity;
 
-        public Background(String bg) {
+        Background(String bg) {
             int g = Gravity.CENTER;
             float scale = 1f;
             String url = null;
@@ -82,7 +81,6 @@ public class Slide {
     }
 
     private final List<Background> backgrounds = new ArrayList<>();
-    private final Map<String, CacheTarget> bitmaps = new HashMap<>();
     private final SpannableStringBuilder text = new SpannableStringBuilder();
 
     private Slide(String s) {
@@ -161,12 +159,12 @@ public class Slide {
         public void onPrepareLoad(Drawable placeHolderDrawable) {
         }
 
-        public Bitmap getCacheBitmap() {
+        Bitmap getCacheBitmap() {
             return cacheBitmap;
         }
     }
 
-    public void render(Context c, Canvas canvas, int width, int height, String typeface, int fg, int bg, boolean blocking) {
+    public void render(Canvas canvas, int width, int height, String typeface, int fg, int bg, boolean blocking) {
         TextPaint textPaint = new TextPaint();
         canvas.drawColor(bg);
         textPaint.setColor(fg);
@@ -177,7 +175,6 @@ public class Slide {
             if (img.url != null) {
                 Bitmap b = null;
                 CacheTarget cacheTarget = new CacheTarget();
-                bitmaps.put(img.url, cacheTarget);
                 RequestCreator request = Picasso.get()
                         .load(img.url);
                 if (img.scale > 0) {
@@ -251,7 +248,7 @@ public class Slide {
             paragraphs = joinPlantUMLDiagrams(paragraphs);
 
         for (String par : paragraphs) {
-            String finalPar = (p.templateBefore() + par + p.templateAfter()).trim();
+            String finalPar = p.templateBefore() + par + p.templateAfter();
             if(p.plantUMLEnabled())
                 slides.add(new Slide(parsePlantUML(finalPar)));
             else
@@ -283,7 +280,7 @@ public class Slide {
         return finalParagraphs.toArray(new String[]{});
     }
 
-    private static String startUML = "@startuml";
+    private static final String startUML = "@startuml";
 
     private static boolean isStartUML(String s) {
         return s.trim().toLowerCase().startsWith(startUML);
