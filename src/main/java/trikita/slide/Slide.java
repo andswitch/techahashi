@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.zip.Deflater;
 
 import trikita.anvil.Anvil;
+import trikita.slide.preprocessors.PlantUMLPreprocessor;
+import trikita.slide.preprocessors.SlideTemplatePreprocessor;
 
 public class Slide {
 
@@ -83,7 +85,7 @@ public class Slide {
     private final List<Background> backgrounds = new ArrayList<>();
     private final SpannableStringBuilder text = new SpannableStringBuilder();
 
-    private Slide(String s) {
+    Slide(String s) {
         int emSpanStart = -1;
         int codeSpanStart = -1;
         for (String line : s.split("\n")) {
@@ -236,116 +238,5 @@ public class Slide {
                 return;
             }
         }
-    }
-
-    public static List<Slide> parse(String s) {
-        List<Slide> slides = new ArrayList<>();
-        Presentation p = App.getState().getCurrentPresentation();
-
-        String[] paragraphs = s.split("(\n){2,}");
-
-        if(p.plantUMLEnabled())
-            paragraphs = joinPlantUMLDiagrams(paragraphs);
-
-        for (String par : paragraphs) {
-            String finalPar = p.templateBefore() + par + p.templateAfter();
-            if(p.plantUMLEnabled())
-                slides.add(new Slide(parsePlantUML(finalPar)));
-            else
-                slides.add(new Slide(finalPar));
-        }
-        return slides;
-    }
-
-    private static String[] joinPlantUMLDiagrams(String[] paragraphs) {
-        List<String> finalParagraphs = new ArrayList<>();
-
-        boolean inUMLDiagram = false;
-
-        for (String par : paragraphs) {
-            if(inUMLDiagram) {
-                String p = finalParagraphs.get(finalParagraphs.size()-1);
-                p += "\n" + par;
-                finalParagraphs.set(finalParagraphs.size()-1, p);
-            } else {
-                finalParagraphs.add(par);
-            }
-
-            for(String line : par.split("\n")) {
-                if(isStartUML(line)) inUMLDiagram = true;
-                else if(isEndUML(line)) inUMLDiagram = false;
-            }
-        }
-
-        return finalParagraphs.toArray(new String[]{});
-    }
-
-    private static final String startUML = "@startuml";
-
-    private static boolean isStartUML(String s) {
-        return s.trim().toLowerCase().startsWith(startUML);
-    }
-
-    private static boolean isEndUML(String s) {
-        return s.trim().toLowerCase().startsWith("@enduml");
-    }
-
-    private static String parsePlantUML(String par) {
-        List<String> outLines = new ArrayList<>();
-
-        boolean inUML = false;
-        List<String> umlLines = null;
-        String bgArgs = "";
-
-        for (String line : par.split("\n")) {
-            if (inUML) {
-                if (isEndUML(line)) {
-                    outLines.add(processPlantUML(TextUtils.join("\n", umlLines)) + bgArgs);
-                    inUML = false;
-                    umlLines = null;
-                    bgArgs = "";
-                } else {
-                    umlLines.add(line);
-                }
-            } else {
-                if (isStartUML(line)) {
-                    umlLines = new ArrayList<>();
-                    inUML = true;
-                    bgArgs = line.trim().substring(startUML.length());
-                    if(!bgArgs.isEmpty() && bgArgs.charAt(0) != ' ') bgArgs = " " + bgArgs;
-                } else {
-                    outLines.add(line);
-                }
-            }
-        }
-
-        return TextUtils.join("\n", outLines);
-    }
-
-    private static String processPlantUML(String s) {
-        try {
-            String payload = App.getState().getCurrentPresentation().plantUMLTemplateBefore() + s + App.getState().getCurrentPresentation().plantUMLTemplateAfter();
-            return "@" + App.getState().getCurrentPresentation().plantUMLEndPoint() +
-                    "/" + encodePlantUML(payload.trim());
-        } catch (Exception e) {
-            return "@http://s2.quickmeme.com/img/17/17637236ce6b1eb8a807f5b871c81b0269d72ef2a89265e1b23cf3f8e741a6d2.jpg";
-        }
-    }
-
-    private static String encodePlantUML(String s) throws UnsupportedEncodingException {
-        // Deflate
-        byte[] input = s.getBytes("UTF-8");
-        byte[] output = new byte[input.length];
-        Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION, true);
-        compressor.setInput(input);
-        compressor.finish();
-        int compressedSize = compressor.deflate(output);
-        compressor.end();
-
-        byte[] finalOutput = new byte[compressedSize];
-        System.arraycopy(output, 0, finalOutput, 0, compressedSize);
-
-        URLEncoder encoder = new AsciiEncoder();
-        return encoder.encode(finalOutput);
     }
 }

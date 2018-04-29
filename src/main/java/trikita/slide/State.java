@@ -55,7 +55,7 @@ public abstract class State {
                 case SET_CURSOR:
                     String text = s.getCurrentPresentation().text().substring(0, (Integer) a.value);
                     return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
-                        .withPage(Slide.parse(text).size()-1)
+                        .withPage(s.getCurrentPresentation().withText(text).slides().size()-1)
                         .withCursor((Integer) a.value));
                 case NEXT_PAGE:
                     return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
