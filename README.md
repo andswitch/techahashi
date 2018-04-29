@@ -1,4 +1,4 @@
-# PlantUML for Slide
+# PlantUML for Slide + Other changes
 
 <div>
 <img alt="PlantUML Demo 1" src="uml1.png" width="40%" />
@@ -22,6 +22,9 @@
   menu because of the confidentiality issues. Users should be aware
   that an external server is used and the diagram data is sent via
   internet.*
+
+## Other changes
+
 * Add the ability to start and end monospace text with a back tick
   "`" just like emphasis with "*".
 * When exporting to PDF, render the Slide to a Bitmap and then render
@@ -34,3 +37,5 @@
 * Add button to remove presentations.
 * Added separate settings for each presentation.
 * Added notification for PDF export.
+* Preview now listens to swipe left/right. Close the preview by
+  tapping on a slide.
