@@ -27,7 +27,7 @@ public abstract class State {
         return presentations().get(currentPresentationIndex());
     }
 
-    public State withCurrentPresentation(ImmutablePresentation p) {
+    State withCurrentPresentation(ImmutablePresentation p) {
         ImmutableState.Builder b = ImmutableState.builder()
             .from(this)
             .presentations(Collections.emptyList());
@@ -92,7 +92,7 @@ public abstract class State {
                         .withPdfResolution((Integer)a.value));
                 case PREVIOUS_PRESENTATION:
                     if(s.currentPresentationIndex() == s.presentations().size()-1 && s.currentPresentationIndex() > 0
-                       && s.getCurrentPresentation().text().trim().equals(((Context)a.value).getString(R.string.tutorial_text).trim())) {
+                       && s.getCurrentPresentation().text().equals(((Context)a.value).getString(R.string.tutorial_text))) {
                         this.vibrateOnPresentationChange((Context)a.value);
                         return ImmutableState.copyOf(s)
                                 .withPresentations(s.presentations().subList(0, s.currentPresentationIndex()))
@@ -110,7 +110,7 @@ public abstract class State {
                     }
                 case NEXT_PRESENTATION:
                     if(s.currentPresentationIndex() == s.presentations().size()-1
-                        && !s.getCurrentPresentation().text().trim().equals(((Context)a.value).getString(R.string.tutorial_text).trim())) {
+                        && !s.getCurrentPresentation().text().equals(((Context)a.value).getString(R.string.tutorial_text))) {
                         this.vibrateOnPresentationChange((Context)a.value);
                         return ImmutableState.builder().from(s)
                                 .addPresentations(Presentation.Default.build((Context) a.value))

@@ -42,8 +42,8 @@ package net.sourceforge.plantuml.code;
 public class AsciiEncoder implements URLEncoder {
 
 	// Temporary because of AsciiEncoderFinalZeros
-	final static/* private */char encode6bit[] = new char[64];
-	final static/* private */byte decode6bit[] = new byte[128];
+	private final static char[] encode6bit = new char[64];
+	private final static byte[] decode6bit = new byte[128];
 
 	static {
 		for (byte b = 0; b < 64; b++) {
@@ -104,7 +104,7 @@ public class AsciiEncoder implements URLEncoder {
 		return decode6bit[c];
 	}
 
-	public static char encode6bit(byte b) {
+	private static char encode6bit(byte b) {
 		assert b >= 0 && b < 64;
 		if (b < 10) {
 			return (char) ('0' + b);

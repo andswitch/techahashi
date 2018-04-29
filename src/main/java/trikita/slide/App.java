@@ -13,7 +13,6 @@ public class App extends Application {
     private static App instance;
 
     private Store<Action<ActionType, ?>, State> store;
-    private PersistanceController persistanceController;
     private WindowController windowController;
 
     @Override
@@ -23,7 +22,7 @@ public class App extends Application {
 
         this.windowController = new WindowController();
 
-        persistanceController = new PersistanceController(this);
+        PersistanceController persistanceController = new PersistanceController(this);
         State initialState = persistanceController.getSavedState();
         if (initialState == null) {
             initialState = State.Default.build(this);
@@ -47,7 +46,7 @@ public class App extends Application {
         return instance.store.getState();
     }
 
-    public static State dispatch(Action<ActionType, ?> action) {
-        return instance.store.dispatch(action);
+    public static void dispatch(Action<ActionType, ?> action) {
+        instance.store.dispatch(action);
     }
 }

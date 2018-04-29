@@ -1,8 +1,6 @@
 package trikita.slide.ui;
 
 import android.content.Context;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.Arrays;
@@ -44,7 +42,7 @@ public class StylePicker extends RenderableView {
             verticalSpacing(dip(12));
             stretchMode(GridView.STRETCH_COLUMN_WIDTH);
             adapter(mStyleAdapter);
-            onItemClick(this::onStyleClicked);
+            onItemClick((parent, v, pos, id) -> onStyleClicked(pos));
         });
     }
 
@@ -59,7 +57,7 @@ public class StylePicker extends RenderableView {
         });
     });
 
-    private void onStyleClicked(AdapterView parent, View v, int pos, long id) {
+    private void onStyleClicked(int pos) {
         App.dispatch(new Action<>(ActionType.SET_COLOR_SCHEME, pos));
     }
 }
