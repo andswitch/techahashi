@@ -1,11 +1,16 @@
 package trikita.slide;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import trikita.slide.preprocessors.PlantUMLPreprocessor;
+import trikita.slide.preprocessors.SlideTemplatePreprocessor;
 
 @Value.Immutable
 @Gson.TypeAdapters
@@ -31,7 +36,26 @@ public abstract class Presentation {
 
     @Value.Lazy
     public List<Slide> slides() {
-        return Slide.parse(text());
+        Presentation p = this;
+
+        if(this.plantUMLEnabled())
+            p = new PlantUMLPreprocessor().process(p);
+
+        p = new SlideTemplatePreprocessor().process(p);
+
+        List<Slide> slides = new ArrayList<>();
+        for (String par : p.splitParagraphs()) {
+            slides.add(new Slide(par));
+        }
+        return slides;
+    }
+
+    public String[] splitParagraphs() {
+        return text().split("(\n){2,}");
+    }
+
+    public String joinParagraphs(String[] paragraphs) {
+        return TextUtils.join("\n\n", paragraphs);
     }
 
     public static class Default {
