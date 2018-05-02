@@ -52,17 +52,12 @@ public abstract class State {
             switch (a.type) {
                 case SET_TEXT:
                     return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation().withText((String)a.value));
-                case SET_CURSOR:
-                    String text = s.getCurrentPresentation().text().substring(0, (Integer) a.value);
-                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
-                        .withPage(s.getCurrentPresentation().withText(text).slides().size()-1)
-                        .withCursor((Integer) a.value));
                 case NEXT_PAGE:
-                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
-                        .withPage(Math.min(s.getCurrentPresentation().page()+1, s.getCurrentPresentation().slides().size()-1)));
+                    App.getMainLayout().cursor(s.getCurrentPresentation().pageTurn(App.getMainLayout().cursor(),1));
+                    return s;
                 case PREV_PAGE:
-                    return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation()
-                        .withPage(Math.max(s.getCurrentPresentation().page()-1, 0)));
+                    App.getMainLayout().cursor(s.getCurrentPresentation().pageTurn(App.getMainLayout().cursor(),-1));
+                    return s;
                 case OPEN_PRESENTATION:
                     return ImmutableState.copyOf(s).withPresentationMode(true);
                 case CLOSE_PRESENTATION:
@@ -145,11 +140,11 @@ public abstract class State {
     static class Default {
         public static State build(Context c) {
             return ImmutableState.builder()
-                    .presentationMode(false)
-                    .toolbarShown(true)
-                    .currentPresentationIndex(0)
-                    .addPresentations(Presentation.Default.build(c))
-                    .build();
+                .presentationMode(false)
+                .toolbarShown(true)
+                .currentPresentationIndex(0)
+                .addPresentations(Presentation.Default.build(c))
+                .build();
         }
     }
 }

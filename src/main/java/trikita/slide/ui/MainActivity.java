@@ -16,8 +16,10 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle b) {
         super.onCreate(b);
-        setContentView(new MainLayout(this));
-        App.getWindowController().setWindow(getWindow());
+        MainLayout l = new MainLayout(this);
+        setContentView(l);
+        App.dispatch(new Action<>(ActionType.SET_WINDOW, getWindow()));
+        App.setMainLayout(l);
     }
 
     @Override
@@ -35,7 +37,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        App.getWindowController().setWindow(null);
+        App.setMainLayout(null);
+        App.dispatch(new Action<>(ActionType.SET_WINDOW, null));
         super.onDestroy();
     }
 

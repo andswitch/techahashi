@@ -10,7 +10,6 @@ import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -20,20 +19,13 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import net.sourceforge.plantuml.code.AsciiEncoder;
-import net.sourceforge.plantuml.code.URLEncoder;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.Deflater;
 
 import trikita.anvil.Anvil;
-import trikita.slide.preprocessors.PlantUMLPreprocessor;
-import trikita.slide.preprocessors.SlideTemplatePreprocessor;
 
 public class Slide {
 
@@ -72,7 +64,7 @@ public class Slide {
                     }
                 } else if (GRAVITY.containsKey(part)) {
                     g = GRAVITY.get(part);
-                } else if (part.contains("://")) {
+                } else if (part.contains(":/")) {
                     url = part;
                 }
             }
@@ -86,7 +78,7 @@ public class Slide {
     private final Map<String,CacheTarget> bitmaps = new HashMap<>();
     private final SpannableStringBuilder text = new SpannableStringBuilder();
 
-    Slide(String s) {
+    public Slide(String s) {
         int emSpanStart = -1;
         int codeSpanStart = -1;
         for (String line : s.split("\n")) {
@@ -102,7 +94,7 @@ public class Slide {
                 text.append(line.substring(2)).append('\n');
                 text.setSpan(new TypefaceSpan("monospace"), start, text.length(), 0);
             } else {
-                if (line.startsWith(".")) {
+                if (Presentation.isBlankLine(line)) {
                     line = line.substring(1);
                 }
                 for (int i = 0; i < line.length(); i++) {

@@ -24,6 +24,7 @@ import trikita.slide.App;
 import trikita.slide.Presentation;
 import trikita.slide.R;
 
+import static trikita.anvil.BaseDSL.visibility;
 import static trikita.anvil.DSL.FILL;
 import static trikita.anvil.DSL.START;
 import static trikita.anvil.DSL.TOP;
@@ -40,13 +41,29 @@ import static trikita.anvil.DSL.size;
 import static trikita.anvil.DSL.text;
 import static trikita.anvil.DSL.textView;
 import static trikita.anvil.DSL.v;
+import static trikita.anvil.DSL.webView;
 
 public class MainLayout extends RenderableView {
 
     private Editor mEditor;
+    private Context mCtx;
+    private MathView mMaths;
 
     public MainLayout(Context c) {
         super(c);
+        this.mCtx = c;
+        this.mMaths = new MathView();
+    }
+
+    public int cursor() {
+        if(mEditor != null)
+            return mEditor.getSelectionStart();
+        return 0;
+    }
+
+    public void cursor(int newpos) {
+        if(mEditor != null)
+            mEditor.setSelection(newpos);
     }
 
     public void view() {
@@ -59,6 +76,14 @@ public class MainLayout extends RenderableView {
 
     private void editor() {
         relativeLayout(() -> {
+            webView(() -> {
+                visibility(true);
+                init(() -> {
+                    size(WRAP, WRAP);
+                    mMaths.setWebView(Anvil.currentView());
+                });
+            });
+
             Style.Editor.background();
 
             v(Editor.class, () -> {
@@ -69,14 +94,14 @@ public class MainLayout extends RenderableView {
                 background(null);
                 init(() -> {
                     mEditor = Anvil.currentView();
+                    mEditor.requestFocus();
                     mEditor.setOnSelectionChangedListener(pos -> {
-                        App.dispatch(new Action<>(ActionType.SET_CURSOR, pos));
+                        Anvil.render();
                     });
                 });
                 onTextChanged(chars -> {
                     String s = chars.toString();
                     App.dispatch(new Action<>(ActionType.SET_TEXT, s));
-                    App.dispatch(new Action<>(ActionType.SET_CURSOR, mEditor.getSelectionStart()));
                 });
             });
 

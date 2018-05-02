@@ -34,10 +34,10 @@ public class Preview extends View implements View.OnTouchListener {
 
     protected void onDraw(Canvas canvas) {
         Presentation p = App.getState().getCurrentPresentation();
-        List<Slide> slides = p.slides();
-        int page = p.page();
-        if (page >= 0 && page < slides.size()) {
-            slides.get(page).render(canvas, getWidth(), getHeight(),
+        List<Slide> slides = App.getTaskController().getGeneratedSlides();
+        int page = p.page(App.getMainLayout().cursor());
+        if (page >= 1 && page <= slides.size()) {
+            slides.get(page-1).render(canvas, getWidth(), getHeight(),
                     Style.SLIDE_FONT,
                     Style.COLOR_SCHEMES[p.colorScheme()][0],
                     Style.COLOR_SCHEMES[p.colorScheme()][1],
