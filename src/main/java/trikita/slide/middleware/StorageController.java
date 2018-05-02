@@ -3,6 +3,7 @@ package trikita.slide.middleware;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
@@ -13,11 +14,14 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.widget.ArrayAdapter;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import trikita.jedux.Action;
@@ -47,19 +51,20 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
 
         notificationManager = NotificationManagerCompat.from(mContext);
         mBuilder = new NotificationCompat.Builder(mContext, PDF_EXPORT_NOTIFICATION_CHANNEL);
-        mBuilder.setContentTitle("Slide PDF Export")
-            .setContentText("Exporting...")
+        mBuilder.setContentTitle(c.getString(R.string.notifications_title))
+            .setContentText(c.getString(R.string.notifications_exporting_pdf))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_LOW);
     }
 
     @Override
     public void dispatch(Store<Action<ActionType, ?>, State> store, Action<ActionType, ?> action, Store.NextDispatcher<Action<ActionType, ?>> next) {
+        next.dispatch(action);
         if (action.type == ActionType.CREATE_PDF) {
             createPdf((Activity)action.value);
             return;
         } else if (action.type == ActionType.EXPORT_PDF) {
-            int PROGRESS_MAX = App.getState().getCurrentPresentation().slides().size();
+            int PROGRESS_MAX = App.getTaskController().getGeneratedSlides().size();
             mBuilder.setProgress(PROGRESS_MAX, 0, false);
             notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
             new PdfExportTask(store.getState().getCurrentPresentation(), (Uri) action.value, mContext, notificationManager, mBuilder).execute();
@@ -70,20 +75,28 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         } else if (action.type == ActionType.INSERT_IMAGE) {
             Presentation p = store.getState().getCurrentPresentation();
             String s = p.text();
-            int c = p.cursor();
+            int c = App.getMainLayout().cursor();
             String chunk = s.substring(0, c);
             int startOfLine = chunk.lastIndexOf("\n");
             if (startOfLine == -1) {
-                startOfLine = 0;
                 s = "@"+(action.value).toString()+"\n"+s;
             } else {
                 s = s.substring(0, startOfLine+1)+"@"+(action.value).toString()+"\n"+s.substring(startOfLine+1);
             }
             App.dispatch(new Action<>(ActionType.SET_TEXT, s));
-            App.dispatch(new Action<>(ActionType.SET_CURSOR, startOfLine));
             return;
-        }
-        next.dispatch(action);
+        } /*else if(action.type == ActionType.MATH_TYPESET_COMPLETE) {
+            try {
+                File f = File.createTempFile("bmp",".png", mContext.getCacheDir());
+                OutputStream s = new FileOutputStream(f);
+                Bitmap bmp = (Bitmap)action.value;
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, s);
+                s.close();
+                App.dispatch(new Action<>(ActionType.INSERT_IMAGE, f.toURI()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 
     private void createPdf(Activity a) {
@@ -114,33 +127,15 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         protected Boolean doInBackground(Void... params) {
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
+            List<Slide> slides = App.getTaskController().getGeneratedSlides();
             try {
-                ArrayAdapter<CharSequence> resolutions = ArrayAdapter.createFromResource(context,
-                    R.array.pdf_resolutions, android.R.layout.simple_spinner_item);
-
-                String resolution = resolutions.getItem(p.pdfResolution()).toString();
-
-                int width;
-                switch(resolution) {
-                case "720p":
-                    width = 1280;
-                    break;
-                case "1080p":
-                default:
-                    width = 1920;
-                    break;
-                case "4K":
-                    width = 3840;
-                    break;
-                case "8K":
-                    width = 7680;
-                    break;
-                }
+                String[] r = context.getResources().getStringArray(R.array.pdf_widths);
+                int width = Integer.parseInt(r[p.pdfResolution()]);
 
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
 
                 int i = 1;
-                for (Slide slide : p.slides()) {
+                for (Slide slide : slides) {
                     Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
                     Canvas c = new Canvas(bmp);
                     c.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
@@ -154,7 +149,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                     PdfDocument.Page page = document.startPage(pageInfo);
                     page.getCanvas().drawBitmap(bmp, 0, 0, null);
                     document.finishPage(page);
-                    publishProgress(i++, p.slides().size()+1);
+                    publishProgress(i++, slides.size()+1);
                 }
 
                 pfd = context.getContentResolver().openFileDescriptor(uri, "w");
@@ -165,7 +160,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 } else {
                     return false;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             } finally {

@@ -6,19 +6,9 @@ import android.text.TextUtils;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import trikita.slide.preprocessors.PlantUMLPreprocessor;
-import trikita.slide.preprocessors.SlideTemplatePreprocessor;
-
 @Value.Immutable
 @Gson.TypeAdapters
 public abstract class Presentation {
-
-    public abstract int page();
-    public abstract int cursor();
-
     public abstract String text();
 
     public abstract int colorScheme();
@@ -34,35 +24,57 @@ public abstract class Presentation {
 
     public abstract int pdfResolution();
 
-    @Value.Lazy
-    public List<Slide> slides() {
-        Presentation p = this;
-
-        if(this.plantUMLEnabled())
-            p = new PlantUMLPreprocessor().process(p);
-
-        p = new SlideTemplatePreprocessor().process(p);
-
-        List<Slide> slides = new ArrayList<>();
-        for (String par : p.splitParagraphs()) {
-            slides.add(new Slide(par));
-        }
-        return slides;
+    public static boolean isBlankLine(String s) {
+        return s.startsWith(".");
     }
 
-    public String[] splitParagraphs() {
+    public String[] pages() {
         return text().split("(\n){2,}");
     }
 
-    public String joinParagraphs(String[] paragraphs) {
-        return TextUtils.join("\n\n", paragraphs);
+    public static String joinPages(String[] pages) {
+        return TextUtils.join("\n\n", pages);
+    }
+
+    public int page(int cursor) {
+        String s = text();
+        int p = 1;
+
+        char prev = 0, prevprev = 0;
+        for(int i = 0; i < s.length() && i <= cursor; ++i) {
+            char cur = s.charAt(i);
+            if(cur != '\n' && prev == '\n' && prevprev == '\n')
+                ++p;
+            prevprev = prev;
+            prev = cur;
+        }
+
+        return p;
+    }
+
+    private int cursor(int page) {
+        String s = text();
+        int c = 0;
+        char prev = 0, prevprev = 0;
+
+        for(int skipped = 0; skipped < page-1 && c < s.length(); ++c) {
+            char cur = s.charAt(c);
+            if(cur != '\n' && prev == '\n' && prevprev == '\n')
+                ++skipped;
+            prevprev = prev;
+            prev = cur;
+        }
+
+        return Math.max(0,c-1);
+    }
+
+    public int pageTurn(int cursor, int diff) {
+        return cursor(Math.max(1, Math.min(pages().length, page(cursor)+diff)));
     }
 
     public static class Default {
         public static ImmutablePresentation build(Context c) {
             return ImmutablePresentation.builder()
-                    .page(0)
-                    .cursor(0)
                     .text(c.getString(R.string.tutorial_text))
                     .colorScheme(0)
                     .plantUMLEndPoint("https://plantuml.nitorio.us/png")
