@@ -168,9 +168,6 @@ public class Slide {
 
         for (Background img : backgrounds) {
             if (img.url != null) {
-                Bitmap b = null;
-                CacheTarget cacheTarget = new CacheTarget();
-                bitmaps.put(img.url,cacheTarget);
                 RequestCreator request = Picasso.get()
                         .load(img.url);
                 if (img.scale > 0) {
@@ -179,6 +176,8 @@ public class Slide {
                     request = request.resize(width, height);
                 }
                 request = request.centerInside();
+
+                Bitmap b = null;
                 if (blocking) {
                     try {
                         b = request.get();
@@ -186,7 +185,12 @@ public class Slide {
                         e.printStackTrace();
                     }
                 } else {
-                    request.into(cacheTarget);
+                    CacheTarget cacheTarget = bitmaps.get(img.url+width);
+                    if(cacheTarget == null){
+                        cacheTarget = new CacheTarget();
+                        bitmaps.put(img.url+width, cacheTarget);
+                        request.into(cacheTarget);
+                    }
                     b = cacheTarget.getCacheBitmap();
                 }
                 if (b != null) {

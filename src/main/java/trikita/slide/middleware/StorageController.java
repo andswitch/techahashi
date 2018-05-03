@@ -133,10 +133,10 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 int width = Integer.parseInt(r[p.pdfResolution()]);
 
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
+                Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
 
                 int i = 1;
                 for (Slide slide : slides) {
-                    Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
                     Canvas c = new Canvas(bmp);
                     c.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
                     slide.render(
