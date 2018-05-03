@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Slide</string>
 
-    <string name="tutorial_text">SLIDE\n\nEach paragraph\nis a slide\n\nThis is a slide\n.\nwith a blank line\n\nTap on the preview\nto start the presentation.\nYou may also pick\na color scheme there.\n\nDone!\n\nYou can also add UML!\n\nEnable PlantUML in the menu.\n\n@startuml\nBob->Alice : hello\n@enduml\n\n@startuml nw 50%\nclass Foo\n\nclass Bar\n@enduml\n.\n#Hello\n.\n@startuml se 50%\nclass Baz\n@enduml\n\nCheck out the PlantUML docs in the menu.\n\nWant to create more presentations?\n\nEdit this presentation\n.\nThen swipe right!\n\nSwipe left to go back.\n\nEach presentation has its own settings. :)\n\nDon\'t forget to export\nto PDF and share.</string>
+    <string name="tutorial_text">SLIDE\n\nEach paragraph\nis a slide\n\nThis is a slide\n.\nwith a blank line\n\nTap on the preview\nto start the presentation.\nYou may also pick\na color scheme there.\n\nDone!\n\nYou can also add UML!\n\nEnable PlantUML in the menu.\n\n@startuml\nBob->Alice : hello\n@enduml\n\n@startuml nw 50%\nclass Foo\n.\nclass Bar\n@enduml\n.\n#Hello\n.\n@startuml se 50%\nclass Baz\n@enduml\n\nCheck out the PlantUML docs in the menu.\n\nWant to create more presentations?\n\nEdit this presentation\n.\nThen swipe right!\n\nSwipe left to go back.\n\nEach presentation has its own settings. :)\n\nDon\'t forget to export\nto PDF and share.</string>
 
     <string name="pdf_name_prefix">Slide-</string>
     <string name="failed_export_pdf">Failed to export to PDF</string>
