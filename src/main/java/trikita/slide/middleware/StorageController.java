@@ -138,7 +138,6 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 int i = 1;
                 for (Slide slide : slides) {
                     Canvas c = new Canvas(bmp);
-                    c.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
                     slide.render(
                             c,
                             c.getWidth(), c.getHeight(),
