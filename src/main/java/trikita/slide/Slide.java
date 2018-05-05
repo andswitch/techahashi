@@ -165,6 +165,7 @@ public class Slide {
         textPaint.setColor(fg);
         textPaint.setAntiAlias(true);
         textPaint.setTypeface(Typeface.create(typeface, Typeface.NORMAL));
+        textPaint.setFlags(textPaint.getFlags() | TextPaint.EMBEDDED_BITMAP_TEXT_FLAG);
 
         for (Background img : backgrounds) {
             if (img.url != null) {
@@ -209,11 +210,19 @@ public class Slide {
 
         for (int textSize = height; textSize > 1; textSize--) {
             textPaint.setTextSize(textSize);
-            if (StaticLayout.getDesiredWidth(text, textPaint) <= w) {
-                StaticLayout layout = new StaticLayout(text, textPaint, w, Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
+            float dw = StaticLayout.getDesiredWidth(text, textPaint);
+
+            if (dw <= w) {
+                StaticLayout layout = StaticLayout.Builder
+                    .obtain(text, 0, text.length(), textPaint, (int)dw)
+                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .setIncludePad(false)
+                    .build();
+
                 if (layout.getHeight() >= h) {
                     continue;
                 }
+
                 int l = 0;
                 for (int i = 0; i < layout.getLineCount(); i++) {
                     int m = (int) (width - layout.getLineWidth(i)) / 2;
@@ -221,18 +230,21 @@ public class Slide {
                         l = m;
                     }
                 }
-                canvas.translate(l, (height - layout.getHeight()) / 2);
+
+                int t = (height - layout.getHeight()) / 2;
+                canvas.translate(l, t);
 
                 textPaint.setColor(bg);
                 textPaint.setStyle(Paint.Style.STROKE);
                 textPaint.setStrokeWidth(8);
-                layout = new StaticLayout(text, textPaint, w, Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
                 layout.draw(canvas);
+
                 textPaint.setColor(fg);
                 textPaint.setStyle(Paint.Style.FILL);
                 textPaint.setStrokeWidth(0);
-                layout = new StaticLayout(text, textPaint, w, Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
                 layout.draw(canvas);
+
+                canvas.translate(-l,-t);
                 return;
             }
         }

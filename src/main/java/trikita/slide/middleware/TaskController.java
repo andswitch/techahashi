@@ -3,9 +3,7 @@ package trikita.slide.middleware;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
-import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
 import trikita.slide.ActionType;
