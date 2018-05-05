@@ -1,9 +1,9 @@
 package trikita.slide.middleware;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
@@ -12,12 +12,9 @@ import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.widget.ArrayAdapter;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -39,9 +36,8 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
     public static final int PICK_IMAGE_REQUEST_CODE = 44;
     public static final int EXPORT_PDF_REQUEST_CODE = 46;
 
-    private Context mContext = null;
+    private Context mContext;
 
-    private static final String PDF_EXPORT_NOTIFICATION_CHANNEL = "SLIDEPDFEXP";
     private static final int PDF_EXPORT_NOTIFICATION_ID = 0;
     private final NotificationManagerCompat notificationManager;
     private final NotificationCompat.Builder mBuilder;
@@ -50,11 +46,12 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         mContext = c;
 
         notificationManager = NotificationManagerCompat.from(mContext);
-        mBuilder = new NotificationCompat.Builder(mContext, PDF_EXPORT_NOTIFICATION_CHANNEL);
+        mBuilder = new NotificationCompat.Builder(mContext);
         mBuilder.setContentTitle(c.getString(R.string.notifications_title))
             .setContentText(c.getString(R.string.notifications_exporting_pdf))
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setPriority(NotificationCompat.PRIORITY_LOW);
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setAutoCancel(true);
     }
 
     @Override
@@ -99,28 +96,20 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         }*/
     }
 
-    private void createPdf(Activity a) {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/pdf");
-        intent.putExtra(Intent.EXTRA_TITLE, a.getString(R.string.pdf_name_prefix)+getTimestamp());
-        a.startActivityForResult(intent, EXPORT_PDF_REQUEST_CODE);
-    }
-
     private static class PdfExportTask extends AsyncTask<Void, Integer, Boolean> {
 
         private final Context context;
         private final Presentation p;
-        private final Uri uri;
         private final NotificationManagerCompat notificationManager;
         private final NotificationCompat.Builder mBuilder;
+        private final Uri uri;
 
         PdfExportTask(Presentation p, Uri uri, Context ctx, NotificationManagerCompat notificationManager, NotificationCompat.Builder mBuilder) {
             this.context = ctx;
             this.p = p;
-            this.uri = uri;
             this.notificationManager = notificationManager;
             this.mBuilder = mBuilder;
+            this.uri = uri;
         }
 
         @Override
@@ -133,7 +122,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 int width = Integer.parseInt(r[p.pdfResolution()]);
 
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
-                Bitmap bmp = Bitmap.createBitmap(pageInfo.getPageWidth(), pageInfo.getPageHeight(), Bitmap.Config.ARGB_8888);
+                Bitmap bmp = Bitmap.createBitmap(pageInfo.getContentRect().width(), pageInfo.getContentRect().height(), Bitmap.Config.ARGB_8888);
 
                 int i = 1;
                 for (Slide slide : slides) {
@@ -145,8 +134,9 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                             Style.COLOR_SCHEMES[p.colorScheme()][0],
                             Style.COLOR_SCHEMES[p.colorScheme()][1],
                             true);
+
                     PdfDocument.Page page = document.startPage(pageInfo);
-                    page.getCanvas().drawBitmap(bmp, 0, 0, null);
+                    page.getCanvas().drawBitmap(bmp, c.getClipBounds(), pageInfo.getContentRect(), null);
                     document.finishPage(page);
                     publishProgress(i++, slides.size()+1);
                 }
@@ -181,8 +171,15 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             super.onPostExecute(ok);
             if (!ok)
                 mBuilder.setContentText(context.getString(R.string.failed_export_pdf));
-            else
-                mBuilder.setContentText(context.getString(R.string.completed_export_pdf));
+            else {
+                Intent target = new Intent(Intent.ACTION_VIEW);
+                target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                target.setData(uri);
+                target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                mBuilder
+                    .setContentText(context.getString(R.string.completed_export_pdf))
+                    .setContentIntent(PendingIntent.getActivity(this.context, 0, target, PendingIntent.FLAG_UPDATE_CURRENT));
+            }
             mBuilder.setProgress(0,0,false);
             notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
         }
@@ -193,8 +190,16 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         return df.format(Calendar.getInstance(TimeZone.getDefault()).getTimeInMillis());
     }
 
+    private void createPdf(Activity a) {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_TITLE, a.getApplicationContext().getString(R.string.pdf_file_name_template, getTimestamp()));
+        a.startActivityForResult(intent, EXPORT_PDF_REQUEST_CODE);
+    }
+
     private void pickImage(Activity a) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         a.startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
