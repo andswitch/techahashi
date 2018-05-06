@@ -24,7 +24,6 @@ import trikita.slide.App;
 import trikita.slide.Presentation;
 import trikita.slide.R;
 
-import static trikita.anvil.BaseDSL.visibility;
 import static trikita.anvil.DSL.FILL;
 import static trikita.anvil.DSL.START;
 import static trikita.anvil.DSL.TOP;
@@ -46,13 +45,12 @@ import static trikita.anvil.DSL.webView;
 public class MainLayout extends RenderableView {
 
     private Editor mEditor;
-    private Context mCtx;
-    private MathView mMaths;
+    public final MathView mathView;
 
     public MainLayout(Context c) {
         super(c);
-        this.mCtx = c;
-        this.mMaths = new MathView();
+        this.mathView = new MathView((Activity)c);
+        App.getTaskController().setMathView(this.mathView);
     }
 
     public int cursor() {
@@ -76,13 +74,13 @@ public class MainLayout extends RenderableView {
 
     private void editor() {
         relativeLayout(() -> {
-            webView(() -> {
-                visibility(true);
+            /*webView(() -> {
+                visibility(false);
                 init(() -> {
                     size(WRAP, WRAP);
-                    mMaths.setWebView(Anvil.currentView());
+                    mathView.setWebView(Anvil.currentView());
                 });
-            });
+            });*/
 
             Style.Editor.background();
 

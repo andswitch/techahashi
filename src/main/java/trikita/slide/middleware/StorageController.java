@@ -20,7 +20,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
+import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
 import trikita.slide.ActionType;
@@ -61,7 +63,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             createPdf((Activity)action.value);
             return;
         } else if (action.type == ActionType.EXPORT_PDF) {
-            int PROGRESS_MAX = App.getTaskController().getGeneratedSlides().size();
+            int PROGRESS_MAX = App.getState().getCurrentPresentation().pages().length;
             mBuilder.setProgress(PROGRESS_MAX, 0, false);
             notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
             new PdfExportTask(store.getState().getCurrentPresentation(), (Uri) action.value, mContext, notificationManager, mBuilder).execute();
@@ -116,7 +118,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         protected Boolean doInBackground(Void... params) {
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
-            List<Slide> slides = App.getTaskController().getGeneratedSlides();
+            List<Slide> slides = App.getTaskController().getGeneratedSlides(true, null);
             try {
                 String[] r = context.getResources().getStringArray(R.array.pdf_widths);
                 int width = Integer.parseInt(r[p.pdfResolution()]);

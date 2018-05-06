@@ -1,6 +1,7 @@
 package trikita.slide;
 
 import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import org.immutables.gson.Gson;
@@ -24,8 +25,16 @@ public abstract class Presentation {
 
     public abstract int pdfResolution();
 
-    public static boolean isBlankLine(String s) {
+    public static boolean possibleLineBreak(String s) {
         return s.startsWith(".");
+    }
+
+    public static boolean isBackground(String line) {
+        return line.startsWith("@");
+    }
+
+    public static String asBackground(Uri uri) {
+        return "@" + uri.toString();
     }
 
     public String[] pages() {

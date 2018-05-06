@@ -6,7 +6,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
+import java.util.function.Consumer;
 
+import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.slide.ActionType;
 import trikita.slide.App;
@@ -33,8 +35,13 @@ public class Preview extends View implements View.OnTouchListener {
     }
 
     protected void onDraw(Canvas canvas) {
+        List<Slide> slides = App.getTaskController().getGeneratedSlides(false, slides1 -> {
+            Anvil.render();
+        });
+        if(slides == null)
+            return;
+
         Presentation p = App.getState().getCurrentPresentation();
-        List<Slide> slides = App.getTaskController().getGeneratedSlides();
         int page = p.page(App.getMainLayout().cursor());
         if (page >= 1 && page <= slides.size()) {
             slides.get(page-1).render(canvas, getWidth(), getHeight(),

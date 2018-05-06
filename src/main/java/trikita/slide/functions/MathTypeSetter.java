@@ -1,88 +1,117 @@
 package trikita.slide.functions;
 
-public class MathTypeSetter {
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.text.TextUtils;
 
-//    private Context mCtx;
-//    private WebView mMaths;
-//
-//    public MathTypeSetter(Context ctx, WebView v) {
-//        this.mCtx = ctx;
-//
-//        this.mMaths = v;
-//        this.mMaths.getSettings().setJavaScriptEnabled(true);
-//        this.mMaths.setWebViewClient(new MathViewClient(this));
-//    }
-//
-//    @Override
-//    public Presentation apply(Presentation p) {
-//        return null;
-//    }
-//
-//    public void typeSet(String math) {
-//        int[] colorScheme = Style.COLOR_SCHEMES[App.getState().getCurrentPresentation().colorScheme()];
-//        String fg = Integer.toHexString(colorScheme[0] - 0xff000000);
-//        String bg = Integer.toHexString(colorScheme[1] - 0xff000000);
-//        String pageBg = Integer.toHexString(0xffffff - (colorScheme[1] - 0xff000000));
-//        String fin = this.mCtx.getString(R.string.math_template)
-//                .replace("__PAGEBG__", pageBg)
-//                .replace("__BG__", bg)
-//                .replace("__FG__", fg)
-//                .replace("__MATH__", math);
-//        Log.d("MATHTYPESETTING", fin);
-//        this.mMaths.loadDataWithBaseURL( "file:///android_asset/www/", fin,
-//            null, null, null
-//        );
-//    }
-//
-//    public void prepareForDrawing() {
-//        this.mMaths.setVisibility(View.VISIBLE);
-//    }
-//
-//    private void onPageFinished() {
-//        Bitmap bmp = Bitmap.createBitmap(this.mMaths.getWidth(), this.mMaths.getHeight(), Bitmap.Config.ARGB_8888);
-//        this.mMaths.draw(new Canvas(bmp));
-//        //this.mMaths.setVisibility(View.INVISIBLE);
-//
-//        // crop bitmap from right and bottom
-//        int bg = Style.COLOR_SCHEMES[App.getState().getCurrentPresentation().colorScheme()][1];
-//        int colorToCrop = 0xffffff - (bg - 0xff000000) + 0xff000000;
-//        boolean stop;
-//
-//        // from right
-//        int right = bmp.getWidth()-1;
-//        for(stop = false; !stop && right >= 0; --right) {
-//            stop = bmp.getPixel(right,0) != colorToCrop;
-//        }
-//        ++right;
-//
-//        // from right
-//        int bottom = bmp.getHeight()-1;
-//        for(stop = false; !stop && bottom >= 0; --bottom) {
-//            stop = bmp.getPixel(0,bottom) != colorToCrop;
-//        }
-//        ++bottom;
-//
-//        //App.dispatch(new Action<>(ActionType.MATH_TYPESET_COMPLETE, Bitmap.createBitmap(bmp, 0, 0, right, bottom)));
-//    }
-//
-//    private static class MathViewClient extends WebViewClient {
-//        private MathTypeSetter mHndlr;
-//
-//        MathViewClient(MathTypeSetter mHdnlr) {
-//            this.mHndlr = mHdnlr;
-//        }
-//
-//        @Override
-//        public void onPageFinished(WebView v, String url) {
-//            mHndlr.prepareForDrawing();
-//            Log.i("MATHTYPESETTER", "Page finished");
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    mHndlr.onPageFinished();
-//                }
-//            }, 600);
-//        }
-//    }
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import trikita.slide.ImmutablePresentation;
+import trikita.slide.Presentation;
+import trikita.slide.ui.MathView;
+
+public class MathTypeSetter implements Function<Presentation,Presentation> {
+
+    protected Context ctx;
+    protected MathView mv;
+
+    public MathTypeSetter(Context ctx, MathView mv) {
+        this.ctx = ctx;
+        this.mv = mv;
+    }
+
+    @Override
+    public Presentation apply(Presentation p) {
+        return ImmutablePresentation
+            .copyOf(p)
+            .withText(Presentation.joinPages(
+                Arrays.stream(p.pages())
+                         .map(par -> typesetMath(p, par))
+                        .collect(Collectors.toList())
+                        .toArray(new String[]{})
+            ));
+    }
+
+    protected static final String startMath = "@startmath";
+
+    protected static final boolean isStartMath(String s) {
+        return s.startsWith(startMath);
+    }
+
+    protected static final boolean isEndMath(String s) {
+        return s.startsWith("@endmath");
+    }
+
+    protected String typesetMath(Presentation p, String par) {
+        if (mv == null)
+            return par;
+
+        List<String> outLines = new ArrayList<>();
+
+        boolean inMath = false;
+        List<String> mathLines = null;
+        String bgArgs = "";
+
+        for (String line : par.split("\n")) {
+            if (inMath) {
+                if (isEndMath(line)) {
+                    outLines.add(processMath(p, TextUtils.join("<br>", mathLines)) + bgArgs);
+                    inMath = false;
+                    mathLines = null;
+                    bgArgs = "";
+                } else {
+                    if (Presentation.possibleLineBreak(line))
+                        mathLines.add("");
+                    else
+                        mathLines.add(line);
+                }
+            } else {
+                if (isStartMath(line)) {
+                    mathLines = new ArrayList<>();
+                    inMath = true;
+                    bgArgs = line.trim().substring(startMath.length());
+                    if (!bgArgs.isEmpty() && bgArgs.charAt(0) != ' ') bgArgs = " " + bgArgs;
+                } else {
+                    outLines.add(line);
+                }
+            }
+        }
+
+        if (mathLines != null) {
+            outLines.add(processMath(p, TextUtils.join("<br>", mathLines)) + bgArgs);
+        }
+
+        return TextUtils.join("\n", outLines);
+    }
+
+    protected String processMath(Presentation p, String mathLines) {
+        CompletableFuture<Bitmap> bmpf = mv.typeset(
+            p.colorScheme(),
+            mathLines.trim()
+        );
+
+        try {
+            Bitmap bmp = bmpf.get();
+            return Presentation.asBackground(bmpUri(bmp));
+        } catch (Exception e) {
+            return mathLines;
+        }
+    }
+
+    protected Uri bmpUri(Bitmap bmp) throws IOException {
+        File bmpFile = File.createTempFile("bmp", ".png", this.ctx.getCacheDir());
+        OutputStream os = new FileOutputStream(bmpFile);
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, os);
+        return Uri.fromFile(bmpFile);
+    }
 }
