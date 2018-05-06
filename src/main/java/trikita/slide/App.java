@@ -29,7 +29,7 @@ public class App extends Application {
             initialState = State.Default.build(this);
         }
 
-        this.taskController = new TaskController(initialState.getCurrentPresentation());
+        this.taskController = new TaskController(this, initialState.getCurrentPresentation());
 
         this.store = new Store<>(new State.Reducer(),
             initialState,

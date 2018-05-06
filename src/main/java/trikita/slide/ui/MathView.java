@@ -1,5 +1,6 @@
 package trikita.slide.ui;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -7,109 +8,103 @@ import android.os.Message;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-class MathView {
+public class MathView {
 
-    private WebView mMaths;
-    private Map<Integer,CompletableFuture<Bitmap>> typesetTasks;
-    private Map<Integer,Integer> typesetFgs;
-    private int nextTypesetTaskId;
-    private int curFg;
+    private WebView webView;
+    private boolean webViewLoaded;
+    private List<TypesetTask> typesetTasks;
+    private TypesetTask currentTask;
     private Handler mHandler;
 
-    MathView() {
-        this.typesetTasks = new HashMap<>();
-        this.typesetFgs = new HashMap<>();
-        nextTypesetTaskId = curFg = 0;
+    MathView(Activity ctx) {
+        this.typesetTasks = new LinkedList<>();
+        this.currentTask = null;
 
-        this.mHandler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                onTypeset(msg.what);
-                return true;
+        this.mHandler = new Handler(msg -> {
+            switch(msg.what) {
+                case 0:
+                    onLoaded();
+                    break;
+                case 1:
+                    onTypeset();
+                    break;
+                case 5:
+                    sendOneTaskIfPossible();
+                    break;
             }
+            return true;
         });
+
+        this.webViewLoaded = false;
+        this.webView = new WebView(ctx);
+        this.webView.layout(0, 0, 1920, 1080);
+        this.webView.getSettings().setJavaScriptEnabled(true);
+        this.webView.addJavascriptInterface(new MathViewJS(this.mHandler), "Android");
+        this.webView.loadUrl("file:///android_asset/www/mathview.html");
     }
 
-    void setWebView(WebView v) {
-        if(this.mMaths == v)
-            return;
-
-        if(this.typesetTasks.size() == 0 && this.mMaths != null) {
-            this.mMaths.removeJavascriptInterface("Android");
-        }
-
-        this.mMaths = v;
-        v.getSettings().setJavaScriptEnabled(true);
-        v.addJavascriptInterface(new MathViewJS(this.mHandler), "Android");
-        v.loadUrl("file:///android_asset/www/mathview.html");
+    public CompletableFuture<Bitmap> typeset(int colorSchemeIdx, String math) {
+        int[] colorScheme = Style.COLOR_SCHEMES[colorSchemeIdx];
+        TypesetTask task = new TypesetTask(colorScheme[0],colorScheme[1],math);
+        typesetTasks.add(task);
+        Message.obtain(mHandler, 5).sendToTarget();
+        return task.result;
     }
 
-    public void colorScheme(int fg, int bg) {
-        curFg = fg;
-        this.mMaths.loadUrl("javascript:colorScheme('"+Integer.toHexString(fg)+"','"+Integer.toHexString(bg)+"');");
-    }
+    private void onTypeset() {
+        CompletableFuture<Bitmap> future = currentTask.result;
 
-    public CompletableFuture<Bitmap> typeset(String math) {
-        this.mMaths.loadUrl("javascript:typeset("+nextTypesetTaskId+", '"+math+"');");
-
-        typesetTasks.put(nextTypesetTaskId, new CompletableFuture<>());
-        typesetFgs.put(nextTypesetTaskId, curFg);
-
-        return typesetTasks.get(nextTypesetTaskId++);
-        /*int[] colorScheme = Style.COLOR_SCHEMES[App.getState().getCurrentPresentation().colorScheme()];
-        String fg = Integer.toHexString(colorScheme[0] - 0xff000000);
-        String bg = Integer.toHexString(colorScheme[1] - 0xff000000);
-        String fin = this.mCtx.getString(R.string.math_template)
-                .replace("__PAGEBG__", pageBg)
-                .replace("__BG__", bg)
-                .replace("__FG__", fg)
-                .replace("__MATH__", math);
-        Log.d("MATHTYPESETTING", fin);
-        this.mMaths.loadDataWithBaseURL( "file:///android_asset/www/", fin,
-            null, null, null
-        );*/
-    }
-
-    private void onTypeset(int formulaId) {
-        if(formulaId == -1) {
-            this.typeset("ax^2 + bx + c = 0");
-            return;
-        }
-
-        CompletableFuture<Bitmap> future = typesetTasks.remove(formulaId);
-        int fg = typesetFgs.remove(formulaId);
-
-        Bitmap bmp = Bitmap.createBitmap(this.mMaths.getWidth(), this.mMaths.getHeight(), Bitmap.Config.ARGB_8888);
-        this.mMaths.draw(new Canvas(bmp));
-
-        //if(typesetTasks.size() == 0)
-        //    this.mMaths.setVisibility(View.INVISIBLE);
+        Bitmap bmp = Bitmap.createBitmap(this.webView.getWidth(), this.webView.getHeight(), Bitmap.Config.ARGB_8888);
+        this.webView.draw(new Canvas(bmp));
 
         // crop bitmap from right and bottom
         boolean stop;
 
         // from right
-        int right = bmp.getWidth()-1;
-        for(stop = false; !stop && right >= 0; --right) {
-            stop = bmp.getPixel(right,0) != fg;
+        int right = bmp.getWidth() - 1;
+        for (stop = false; !stop && right >= 0; --right) {
+            stop = bmp.getPixel(right, 0) != currentTask.fg;
         }
         ++right;
 
         // from right
-        int bottom = bmp.getHeight()-1;
-        for(stop = false; !stop && bottom >= 0; --bottom) {
-            stop = bmp.getPixel(0,bottom) != fg;
+        int bottom = bmp.getHeight() - 1;
+        for (stop = false; !stop && bottom >= 0; --bottom) {
+            stop = bmp.getPixel(0, bottom) != currentTask.fg;
         }
         ++bottom;
 
-        if(right == 0 || bottom == 0)
+        if (right == 0 || bottom == 0)
             future.cancel(true);
 
         future.complete(Bitmap.createBitmap(bmp, 0, 0, right, bottom));
+
+        this.currentTask = null;
+        Message.obtain(mHandler, 5).sendToTarget();
+    }
+
+    private void onLoaded() {
+        this.webViewLoaded = true;
+        this.sendOneTaskIfPossible();
+    }
+
+    private void sendOneTaskIfPossible() {
+        if(this.currentTask != null || !this.webViewLoaded || this.typesetTasks.isEmpty())
+            return;
+
+        this.currentTask = this.typesetTasks.remove(0);
+
+        this.webView.loadUrl(
+            "javascript:typeset('"
+                +Integer.toHexString(this.currentTask.fg).substring(2)+"','"
+                +Integer.toHexString(this.currentTask.bg).substring(2)+"','"
+                +this.currentTask.maths
+            +"');"
+        );
     }
 
     private static class MathViewJS {
@@ -120,8 +115,27 @@ class MathView {
         }
 
         @JavascriptInterface
-        void onTypeset(int formulaId) {
-            Message.obtain(this.mHandler, formulaId).sendToTarget();
+        void onTypeset() {
+            Message.obtain(this.mHandler, 1).sendToTarget();
+        }
+
+        @JavascriptInterface
+        void onLoaded() {
+            Message.obtain(this.mHandler, 0).sendToTarget();
+        }
+    }
+
+    static class TypesetTask {
+        final int fg;
+        final int bg;
+        final String maths;
+        final CompletableFuture<Bitmap> result;
+
+        TypesetTask(int fg, int bg, String maths) {
+            this.fg = fg;
+            this.bg = bg;
+            this.maths = maths;
+            this.result = new CompletableFuture<>();
         }
     }
 

@@ -82,7 +82,7 @@ public class Slide {
         int emSpanStart = -1;
         int codeSpanStart = -1;
         for (String line : s.split("\n")) {
-            if (line.startsWith("@")) {
+            if (Presentation.isBackground(line)) {
                 backgrounds.add(new Background(line.substring(1)));
             } else if (line.startsWith("#")) {
                 int start = text.length();
@@ -94,7 +94,7 @@ public class Slide {
                 text.append(line.substring(2)).append('\n');
                 text.setSpan(new TypefaceSpan("monospace"), start, text.length(), 0);
             } else {
-                if (Presentation.isBlankLine(line)) {
+                if (Presentation.possibleLineBreak(line)) {
                     line = line.substring(1);
                 }
                 for (int i = 0; i < line.length(); i++) {

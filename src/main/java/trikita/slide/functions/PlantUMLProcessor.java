@@ -56,7 +56,7 @@ public class PlantUMLProcessor implements Function<Presentation,Presentation> {
                     umlLines = null;
                     bgArgs = "";
                 } else {
-                    if(Presentation.isBlankLine(line))
+                    if(Presentation.possibleLineBreak(line))
                         umlLines.add("");
                     else
                         umlLines.add(line);
