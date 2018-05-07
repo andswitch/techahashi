@@ -34,12 +34,7 @@ public class Preview extends View implements View.OnTouchListener {
     }
 
     protected void onDraw(Canvas canvas) {
-        List<Slide> slides = App.getTaskController().getGeneratedSlides(false, slides1 -> {
-            Anvil.render();
-        });
-        if(slides == null)
-            return;
-
+        List<Slide> slides = App.getTaskController().getGeneratedSlides(false);
         Presentation p = App.getState().getCurrentPresentation();
         int page = p.page(App.getMainLayout().cursor());
         if (page >= 1 && page <= slides.size()) {
