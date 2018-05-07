@@ -19,7 +19,6 @@ import trikita.slide.functions.MathTypeSetter;
 import trikita.slide.functions.PlantUMLProcessor;
 import trikita.slide.functions.PresentationToSlidesProcessor;
 import trikita.slide.functions.SlideTemplateProcessor;
-import trikita.slide.ui.MathView;
 
 public class TaskController implements Store.Middleware<Action<ActionType, ?>, State> {
 

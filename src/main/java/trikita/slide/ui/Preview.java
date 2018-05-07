@@ -6,7 +6,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;

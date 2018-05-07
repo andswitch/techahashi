@@ -20,9 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.function.Consumer;
 
-import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
 import trikita.slide.ActionType;
