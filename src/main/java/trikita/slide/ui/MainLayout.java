@@ -45,12 +45,9 @@ import static trikita.anvil.DSL.webView;
 public class MainLayout extends RenderableView {
 
     private Editor mEditor;
-    public final MathView mathView;
 
     public MainLayout(Context c) {
         super(c);
-        this.mathView = new MathView((Activity)c);
-        App.getTaskController().setMathView(this.mathView);
     }
 
     public int cursor() {

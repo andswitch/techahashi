@@ -1,6 +1,6 @@
 package trikita.slide.ui;
 
-import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import trikita.slide.Presentation;
+
 public class MathView {
 
     private WebView webView;
@@ -19,10 +21,12 @@ public class MathView {
     private List<TypesetTask> typesetTasks;
     private TypesetTask currentTask;
     private Handler mHandler;
+    private Presentation presentation;
 
-    MathView(Activity ctx) {
+    public MathView(Context ctx, Presentation p) {
         this.typesetTasks = new LinkedList<>();
         this.currentTask = null;
+        this.presentation = p;
 
         this.mHandler = new Handler(msg -> {
             switch(msg.what) {
@@ -41,15 +45,14 @@ public class MathView {
 
         this.webViewLoaded = false;
         this.webView = new WebView(ctx);
-        this.webView.layout(0, 0, 1920, 1080);
+        this.webView.layout(0, 0, p.getPdfWidth(ctx), p.getPdfHeight(ctx));
         this.webView.getSettings().setJavaScriptEnabled(true);
         this.webView.addJavascriptInterface(new MathViewJS(this.mHandler), "Android");
         this.webView.loadUrl("file:///android_asset/www/mathview.html");
     }
 
-    public CompletableFuture<Bitmap> typeset(int colorSchemeIdx, String math) {
-        int[] colorScheme = Style.COLOR_SCHEMES[colorSchemeIdx];
-        TypesetTask task = new TypesetTask(colorScheme[0],colorScheme[1],math);
+    public CompletableFuture<Bitmap> typeset(String math) {
+        TypesetTask task = new TypesetTask(math);
         typesetTasks.add(task);
         Message.obtain(mHandler, 5).sendToTarget();
         return task.result;
@@ -67,14 +70,14 @@ public class MathView {
         // from right
         int right = bmp.getWidth() - 1;
         for (stop = false; !stop && right >= 0; --right) {
-            stop = bmp.getPixel(right, 0) != currentTask.fg;
+            stop = bmp.getPixel(right, 0) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
         }
         ++right;
 
         // from right
         int bottom = bmp.getHeight() - 1;
         for (stop = false; !stop && bottom >= 0; --bottom) {
-            stop = bmp.getPixel(0, bottom) != currentTask.fg;
+            stop = bmp.getPixel(0, bottom) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
         }
         ++bottom;
 
@@ -88,6 +91,11 @@ public class MathView {
     }
 
     private void onLoaded() {
+        int[] colorScheme = Style.COLOR_SCHEMES[presentation.colorScheme()];
+        this.webView.loadUrl("javascript:init('"
+            +Integer.toHexString(colorScheme[0]).substring(2)+"','"
+            +Integer.toHexString(colorScheme[1]).substring(2)
+        +"')");
         this.webViewLoaded = true;
         this.sendOneTaskIfPossible();
     }
@@ -98,13 +106,7 @@ public class MathView {
 
         this.currentTask = this.typesetTasks.remove(0);
 
-        this.webView.loadUrl(
-            "javascript:typeset('"
-                +Integer.toHexString(this.currentTask.fg).substring(2)+"','"
-                +Integer.toHexString(this.currentTask.bg).substring(2)+"','"
-                +this.currentTask.maths
-            +"');"
-        );
+        this.webView.loadUrl("javascript:typeset('"+this.currentTask.maths+"')");
     }
 
     private static class MathViewJS {
@@ -126,14 +128,10 @@ public class MathView {
     }
 
     static class TypesetTask {
-        final int fg;
-        final int bg;
         final String maths;
         final CompletableFuture<Bitmap> result;
 
-        TypesetTask(int fg, int bg, String maths) {
-            this.fg = fg;
-            this.bg = bg;
+        TypesetTask(String maths) {
             this.maths = maths;
             this.result = new CompletableFuture<>();
         }
