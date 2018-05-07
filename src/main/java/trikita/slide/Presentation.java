@@ -81,6 +81,15 @@ public abstract class Presentation {
         return cursor(Math.max(1, Math.min(pages().length, page(cursor)+diff)));
     }
 
+    public int getPdfWidth(Context context) {
+        String[] r = context.getResources().getStringArray(R.array.pdf_widths);
+        return Integer.parseInt(r[pdfResolution()]);
+    }
+
+    public int getPdfHeight(Context ctx) {
+        return getPdfWidth(ctx) * 9 / 16;
+    }
+
     public static class Default {
         public static ImmutablePresentation build(Context c) {
             return ImmutablePresentation.builder()

@@ -24,18 +24,11 @@ import trikita.slide.ui.MathView;
 public class TaskController implements Store.Middleware<Action<ActionType, ?>, State> {
 
     protected Context ctx;
-    protected MathView mathView;
     protected CompletableFuture<List<Slide>> generateSlidesTask;
 
-    public TaskController(Context c, Presentation p) {
+    public TaskController(Context c) {
         super();
         this.ctx = c;
-        this.mathView = null;
-    }
-
-    public void setMathView(MathView mathView) {
-        this.mathView = mathView;
-        cancelAndRegenerateSlides(App.getState().getCurrentPresentation());
     }
 
     private void cancelAndRegenerateSlides(Presentation p) {
@@ -45,11 +38,15 @@ public class TaskController implements Store.Middleware<Action<ActionType, ?>, S
         generateSlidesTask = CompletableFuture.supplyAsync(() -> p)
             .thenApplyAsync(new PlantUMLProcessor())
             .thenApplyAsync(new SlideTemplateProcessor())
-            .thenApplyAsync(new MathTypeSetter(this.ctx, this.mathView))
+            .thenApplyAsync(new MathTypeSetter(this.ctx))
             .thenApplyAsync(new PresentationToSlidesProcessor());
     }
 
     public List<Slide> getGeneratedSlides(boolean blocking, Consumer<List<Slide>> consumer) {
+        if(generateSlidesTask == null) {
+            cancelAndRegenerateSlides(App.getState().getCurrentPresentation());
+        }
+
         if(blocking || generateSlidesTask.isDone()) {
             try {
                 return generateSlidesTask.get();
@@ -70,6 +67,7 @@ public class TaskController implements Store.Middleware<Action<ActionType, ?>, S
             case SET_COLOR_SCHEME:
             case CONFIGURE_PLANTUML:
             case SET_TEMPLATE:
+            case SET_PDF_RESOLUTION:
                 cancelAndRegenerateSlides(App.getState().getCurrentPresentation());
                 break;
         }

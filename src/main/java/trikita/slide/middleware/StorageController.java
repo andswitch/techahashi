@@ -120,10 +120,9 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             ParcelFileDescriptor pfd = null;
             List<Slide> slides = App.getTaskController().getGeneratedSlides(true, null);
             try {
-                String[] r = context.getResources().getStringArray(R.array.pdf_widths);
-                int width = Integer.parseInt(r[p.pdfResolution()]);
-
-                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, width * 9 / 16, 1).create();
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
+                    p.getPdfWidth(context), p.getPdfHeight(context), 1
+                ).create();
                 Bitmap bmp = Bitmap.createBitmap(pageInfo.getContentRect().width(), pageInfo.getContentRect().height(), Bitmap.Config.ARGB_8888);
 
                 int i = 1;
