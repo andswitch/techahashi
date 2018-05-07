@@ -40,6 +40,7 @@ public class App extends Application {
         );
 
         this.store.subscribe(Anvil::render);
+        dispatch(new Action<>(ActionType.INIT));
     }
 
     public static State getState() {

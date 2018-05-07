@@ -3,6 +3,7 @@ package trikita.slide.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.JavascriptInterface;
@@ -49,6 +50,8 @@ public class MathView {
         this.webView.getSettings().setJavaScriptEnabled(true);
         this.webView.addJavascriptInterface(new MathViewJS(this.mHandler), "Android");
         this.webView.loadUrl("file:///android_asset/www/mathview.html");
+        this.webView.setBackgroundColor(Color.TRANSPARENT);
+        this.webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
     }
 
     public CompletableFuture<Bitmap> typeset(String math) {
@@ -87,7 +90,7 @@ public class MathView {
         future.complete(Bitmap.createBitmap(bmp, 0, 0, right, bottom));
 
         this.currentTask = null;
-        Message.obtain(mHandler, 5).sendToTarget();
+        this.sendOneTaskIfPossible();
     }
 
     private void onLoaded() {

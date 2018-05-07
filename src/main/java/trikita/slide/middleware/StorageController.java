@@ -116,7 +116,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         protected Boolean doInBackground(Void... params) {
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
-            List<Slide> slides = App.getTaskController().getGeneratedSlides(true, null);
+            List<Slide> slides = App.getTaskController().getGeneratedSlides(true);
             try {
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
                     p.getPdfWidth(context), p.getPdfHeight(context), 1
