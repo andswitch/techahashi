@@ -40,20 +40,19 @@ import static trikita.anvil.DSL.size;
 import static trikita.anvil.DSL.text;
 import static trikita.anvil.DSL.textView;
 import static trikita.anvil.DSL.v;
-import static trikita.anvil.DSL.webView;
 
 public class MainLayout extends RenderableView {
 
     private Editor mEditor;
+    private int lastCursor;
 
     public MainLayout(Context c) {
         super(c);
+        lastCursor = 0;
     }
 
     public int cursor() {
-        if(mEditor != null)
-            return mEditor.getSelectionStart();
-        return 0;
+        return lastCursor;
     }
 
     public void cursor(int newpos) {
@@ -63,6 +62,13 @@ public class MainLayout extends RenderableView {
 
     public void view() {
         if (App.getState().presentationMode()) {
+
+            // We need the editor in the background to do the swiping correctly...
+            if(mEditor == null) {
+                editor();
+                Anvil.render();
+            }
+
             presentation();
         } else {
             editor();
@@ -71,14 +77,6 @@ public class MainLayout extends RenderableView {
 
     private void editor() {
         relativeLayout(() -> {
-            /*webView(() -> {
-                visibility(false);
-                init(() -> {
-                    size(WRAP, WRAP);
-                    mathView.setWebView(Anvil.currentView());
-                });
-            });*/
-
             Style.Editor.background();
 
             v(Editor.class, () -> {
@@ -90,7 +88,9 @@ public class MainLayout extends RenderableView {
                 init(() -> {
                     mEditor = Anvil.currentView();
                     mEditor.requestFocus();
+                    mEditor.setSelection(lastCursor);
                     mEditor.setOnSelectionChangedListener(pos -> {
+                        lastCursor = pos;
                         Anvil.render();
                     });
                 });
