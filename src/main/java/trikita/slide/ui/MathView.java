@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import trikita.slide.Presentation;
+import trikita.slide.functions.Crop;
 
 public class MathView {
 
@@ -68,26 +69,26 @@ public class MathView {
         this.webView.draw(new Canvas(bmp));
 
         // crop bitmap from right and bottom
-        boolean stop;
+//        boolean stop;
+//
+//        // from right
+//        int right = bmp.getWidth() - 1;
+//        for (stop = false; !stop && right >= 0; --right) {
+//            stop = bmp.getPixel(right, 0) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
+//        }
+//        ++right;
+//
+//        // from right
+//        int bottom = bmp.getHeight() - 1;
+//        for (stop = false; !stop && bottom >= 0; --bottom) {
+//            stop = bmp.getPixel(0, bottom) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
+//        }
+//        ++bottom;
 
-        // from right
-        int right = bmp.getWidth() - 1;
-        for (stop = false; !stop && right >= 0; --right) {
-            stop = bmp.getPixel(right, 0) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
-        }
-        ++right;
+        //if (right == 0 || bottom == 0)
+         //   future.cancel(true);
 
-        // from right
-        int bottom = bmp.getHeight() - 1;
-        for (stop = false; !stop && bottom >= 0; --bottom) {
-            stop = bmp.getPixel(0, bottom) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
-        }
-        ++bottom;
-
-        if (right == 0 || bottom == 0)
-            future.cancel(true);
-
-        future.complete(Bitmap.createBitmap(bmp, 0, 0, right, bottom));
+        future.complete(new Crop().apply(bmp));
 
         this.currentTask = null;
         this.sendOneTaskIfPossible();
