@@ -63,32 +63,11 @@ public class MathView {
     }
 
     private void onTypeset() {
-        CompletableFuture<Bitmap> future = currentTask.result;
-
-        Bitmap bmp = Bitmap.createBitmap(this.webView.getWidth(), this.webView.getHeight(), Bitmap.Config.ARGB_8888);
+        final CompletableFuture<Bitmap> future = currentTask.result;
+        final Bitmap bmp = Bitmap.createBitmap(this.webView.getWidth(), this.webView.getHeight(), Bitmap.Config.ARGB_8888);
         this.webView.draw(new Canvas(bmp));
 
-        // crop bitmap from right and bottom
-//        boolean stop;
-//
-//        // from right
-//        int right = bmp.getWidth() - 1;
-//        for (stop = false; !stop && right >= 0; --right) {
-//            stop = bmp.getPixel(right, 0) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
-//        }
-//        ++right;
-//
-//        // from right
-//        int bottom = bmp.getHeight() - 1;
-//        for (stop = false; !stop && bottom >= 0; --bottom) {
-//            stop = bmp.getPixel(0, bottom) != Style.COLOR_SCHEMES[presentation.colorScheme()][0];
-//        }
-//        ++bottom;
-
-        //if (right == 0 || bottom == 0)
-         //   future.cancel(true);
-
-        future.complete(new Crop().apply(bmp));
+        CompletableFuture.runAsync(() -> future.complete(new Crop().apply(bmp)));
 
         this.currentTask = null;
         this.sendOneTaskIfPossible();
@@ -97,8 +76,7 @@ public class MathView {
     private void onLoaded() {
         int[] colorScheme = Style.COLOR_SCHEMES[presentation.colorScheme()];
         this.webView.loadUrl("javascript:init('"
-            +Integer.toHexString(colorScheme[0]).substring(2)+"','"
-            +Integer.toHexString(colorScheme[1]).substring(2)
+            +Integer.toHexString(colorScheme[0]).substring(2)
         +"')");
         this.webViewLoaded = true;
         this.sendOneTaskIfPossible();

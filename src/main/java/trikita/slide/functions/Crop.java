@@ -1,15 +1,8 @@
 package trikita.slide.functions;
 
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
 
 public class Crop implements Function<Bitmap,Bitmap> {
     @Override
@@ -68,37 +61,13 @@ public class Crop implements Function<Bitmap,Bitmap> {
         else return px;
     }
 
-    private static class LineIsSolidData {
-        AtomicInteger reportedTasks = new AtomicInteger(0);
-        AtomicBoolean anomalyFound = new AtomicBoolean(false);
-    }
-
     private boolean lineIsSolid(Bitmap bmp, int c, int p, int dx, int dy) {
-        final CompletableFuture<Boolean> f = new CompletableFuture<>();
         final int e = dx != 0 ? bmp.getWidth() : bmp.getHeight();
 
-        final LineIsSolidData lisd = new LineIsSolidData();
+        for(int s = 0; s < e; ++s)
+            if(bmp.getPixel(dx != 0 ? s : p, dy != 0 ? s : p) != c)
+                return false;
 
-        for(int s = 0; !lisd.anomalyFound.get() && s < e; ++s) {
-            final int ss = s;
-            CompletableFuture.runAsync(() -> {
-                if(lisd.anomalyFound.get()) return;
-
-                if(bmp.getPixel(dx != 0 ? ss : p, dy != 0 ? ss : p) != c) {
-                    if (lisd.anomalyFound.compareAndSet(false, true))
-                        f.complete(false);
-                    return;
-                }
-
-                if(lisd.reportedTasks.incrementAndGet() == e)
-                    f.complete(true);
-            });
-        }
-
-        try {
-            return f.get();
-        } catch (InterruptedException | ExecutionException | CancellationException e1) {
-            return false;
-        }
+        return true;
     }
 }
