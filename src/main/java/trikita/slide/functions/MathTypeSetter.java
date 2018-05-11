@@ -1,5 +1,6 @@
 package trikita.slide.functions;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -25,49 +26,22 @@ import trikita.slide.ui.MathView;
 
 public class MathTypeSetter implements Function<Presentation,Presentation> {
 
-    protected Context ctx;
-    protected MathView mv;
-    protected Handler mathHandler;
-    protected CompletableFuture<Boolean> mvInited;
+    protected Activity ctx;
 
-    protected static final int INIT_PRESENTATION = 0;
-
-    public MathTypeSetter(Context ctx) {
+    public MathTypeSetter(Activity ctx) {
         this.ctx = ctx;
-        this.mvInited = new CompletableFuture<>();
-        this.mathHandler = new Handler(msg -> {
-            switch(msg.what) {
-                case INIT_PRESENTATION:
-                    doInitPresentation((Presentation)msg.obj);
-                    return true;
-            }
-            return false;
-        });
     }
 
     @Override
     public Presentation apply(Presentation p) {
-        Message.obtain(mathHandler, INIT_PRESENTATION, p).sendToTarget();
-
-        try {
-            mvInited.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
         return ImmutablePresentation
             .copyOf(p)
             .withText(Presentation.joinPages(
                 Arrays.stream(p.pages())
-                        .map(this::typesetMath)
+                        .map(par -> typesetMath(p,par))
                         .collect(Collectors.toList())
                         .toArray(new String[]{})
             ));
-    }
-
-    protected void doInitPresentation(Presentation p) {
-        this.mv = new MathView(this.ctx, p);
-        this.mvInited.complete(true);
     }
 
     protected static final String startMath = "@startmath";
@@ -80,7 +54,7 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
         return s.startsWith("@endmath");
     }
 
-    protected String typesetMath(String par) {
+    protected String typesetMath(Presentation p, String par) {
         List<String> outLines = new ArrayList<>();
 
         boolean inMath = false;
@@ -90,7 +64,7 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
         for (String line : par.split("\n")) {
             if (inMath) {
                 if (isEndMath(line)) {
-                    outLines.add(processMath(TextUtils.join("<br>", mathLines)) + bgArgs);
+                    outLines.add(processMath(p, TextUtils.join("<br>", mathLines)) + bgArgs);
                     inMath = false;
                     mathLines = null;
                     bgArgs = "";
@@ -113,16 +87,14 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
         }
 
         if (mathLines != null) {
-            outLines.add(processMath(TextUtils.join("<br>", mathLines)) + bgArgs);
+            outLines.add(processMath(p, TextUtils.join("<br>", mathLines)) + bgArgs);
         }
 
         return TextUtils.join("\n", outLines);
     }
 
-    protected String processMath(String mathLines) {
-        CompletableFuture<Bitmap> bmpf = mv.typeset(
-            mathLines.trim()
-        );
+    protected String processMath(Presentation p, String mathLines) {
+        CompletableFuture<Bitmap> bmpf = new MathView(this.ctx, p, mathLines.trim()).futureBitmap();
 
         try {
             Bitmap bmp = bmpf.get();

@@ -6,11 +6,9 @@
     return document.getElementById('math_target');
   }
 
-  function init(fg) {
+  function typeset(fg,maths) {
     mathTarget().style.color = '#'+fg;
-  }
 
-  function typeset(maths) {
     var longestLine = 1;
     var inner = [];
     var ma = maths.split("<br>");
