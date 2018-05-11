@@ -16,6 +16,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle b) {
         super.onCreate(b);
+        App.setMainActivity(this);
         MainLayout l = new MainLayout(this);
         setContentView(l);
         App.dispatch(new Action<>(ActionType.SET_WINDOW, getWindow()));

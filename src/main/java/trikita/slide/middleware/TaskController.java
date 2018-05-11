@@ -1,5 +1,6 @@
 package trikita.slide.middleware;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -27,15 +28,14 @@ import trikita.slide.functions.SlideTemplateProcessor;
 
 public class TaskController implements Store.Middleware<Action<ActionType, ?>, State> {
 
-    protected Context ctx;
+    protected Activity ctx;
     protected CompletableFuture<List<Slide>> generateSlidesTask;
     protected Handler generateSlidesHandler;
 
     private static final int REGENERATION_TIMEOUT = 300;
 
-    public TaskController(Context c) {
+    public TaskController() {
         super();
-        this.ctx = c;
         generateSlidesHandler = new Handler(msg -> {
             switch(msg.what) {
             case 0:
@@ -50,6 +50,8 @@ public class TaskController implements Store.Middleware<Action<ActionType, ?>, S
             return false;
         });
     }
+
+    public void setActivity(Activity act) { this.ctx = act; }
 
     private void cancelAndRegenerateSlides(boolean now, Presentation p, Consumer<List<Slide>> consumer) {
         if(generateSlidesTask != null)

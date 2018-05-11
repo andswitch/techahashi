@@ -1,5 +1,6 @@
 package trikita.slide;
 
+import android.app.Activity;
 import android.app.Application;
 
 import trikita.anvil.Anvil;
@@ -9,6 +10,7 @@ import trikita.slide.middleware.PersistanceController;
 import trikita.slide.middleware.StorageController;
 import trikita.slide.middleware.TaskController;
 import trikita.slide.middleware.WindowController;
+import trikita.slide.ui.MainActivity;
 import trikita.slide.ui.MainLayout;
 
 public class App extends Application {
@@ -29,7 +31,7 @@ public class App extends Application {
             initialState = State.Default.build(this);
         }
 
-        this.taskController = new TaskController(this);
+        this.taskController = new TaskController();
 
         this.store = new Store<>(new State.Reducer(),
             initialState,
@@ -40,7 +42,6 @@ public class App extends Application {
         );
 
         this.store.subscribe(Anvil::render);
-        dispatch(new Action<>(ActionType.INIT));
     }
 
     public static State getState() {
@@ -52,6 +53,11 @@ public class App extends Application {
     public static MainLayout getMainLayout() { return instance.mainLayout; }
 
     public static void setMainLayout(MainLayout m) { instance.mainLayout = m; }
+
+    public static void setMainActivity(Activity m) {
+        instance.taskController.setActivity(m);
+        dispatch(new Action<>(ActionType.INIT));
+    }
 
     public static void dispatch(Action<ActionType, ?> action) {
         instance.store.dispatch(action);
