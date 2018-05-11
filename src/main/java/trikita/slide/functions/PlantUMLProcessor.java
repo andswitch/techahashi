@@ -15,20 +15,12 @@ import java.util.zip.Deflater;
 
 import trikita.slide.ImmutablePresentation;
 import trikita.slide.Presentation;
+import trikita.slide.Slide;
 
-public class PlantUMLProcessor implements Function<Presentation,Presentation> {
+public class PlantUMLProcessor implements Function<Slide.Builder,Slide.Builder> {
     @Override
-    public Presentation apply(Presentation p) {
-        return (!p.plantUMLEnabled())
-            ? p
-            : ImmutablePresentation
-                .copyOf(p)
-                .withText(Presentation.joinPages(
-                    Arrays.stream(p.pages())
-                        .map(par -> parsePlantUML(p, par))
-                        .collect(Collectors.toList())
-                        .toArray(new String[]{})
-                ));
+    public Slide.Builder apply(Slide.Builder p) {
+        return parsePlantUML(p);
     }
 
     private final String startUML = "@startuml";
@@ -41,7 +33,9 @@ public class PlantUMLProcessor implements Function<Presentation,Presentation> {
         return s.trim().toLowerCase().startsWith("@enduml");
     }
 
-    private String parsePlantUML(Presentation p, String par) {
+    private Slide.Builder parsePlantUML(Slide.Builder p) {
+        final String par = p.text;
+
         List<String> outLines = new ArrayList<>();
 
         boolean inUML = false;
@@ -77,13 +71,13 @@ public class PlantUMLProcessor implements Function<Presentation,Presentation> {
            outLines.add(processPlantUML(p, TextUtils.join("\n", umlLines)) + bgArgs);
         }
 
-        return TextUtils.join("\n", outLines);
+        return p.withText(TextUtils.join("\n", outLines));
     }
 
-    private String processPlantUML(Presentation p, String s) {
+    private String processPlantUML(Slide.Builder p, String s) {
         try {
-            String payload = p.plantUMLTemplateBefore() + s + p.plantUMLTemplateAfter();
-            return "@" + p.plantUMLEndPoint() +
+            String payload = p.presentation.plantUMLTemplateBefore() + s + p.presentation.plantUMLTemplateAfter();
+            return "@" + p.presentation.plantUMLEndPoint() +
                     "/" + encodePlantUML(payload.trim());
         } catch (Exception e) {
             return "@http://s2.quickmeme.com/img/17/17637236ce6b1eb8a807f5b871c81b0269d72ef2a89265e1b23cf3f8e741a6d2.jpg";

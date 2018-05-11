@@ -15,16 +15,21 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import trikita.slide.App;
 import trikita.slide.ImmutablePresentation;
 import trikita.slide.Presentation;
+import trikita.slide.Slide;
 import trikita.slide.ui.MathView;
 
-public class MathTypeSetter implements Function<Presentation,Presentation> {
+public class MathTypeSetter implements Function<Slide.Builder,Slide.Builder> {
 
     protected Activity ctx;
 
@@ -33,15 +38,8 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
     }
 
     @Override
-    public Presentation apply(Presentation p) {
-        return ImmutablePresentation
-            .copyOf(p)
-            .withText(Presentation.joinPages(
-                Arrays.stream(p.pages())
-                        .map(par -> typesetMath(p,par))
-                        .collect(Collectors.toList())
-                        .toArray(new String[]{})
-            ));
+    public Slide.Builder apply(Slide.Builder b) {
+        return typesetMath(b);
     }
 
     protected static final String startMath = "@startmath";
@@ -54,7 +52,9 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
         return s.startsWith("@endmath");
     }
 
-    protected String typesetMath(Presentation p, String par) {
+    protected Slide.Builder typesetMath(Slide.Builder b) {
+        final String par = b.text;
+
         List<String> outLines = new ArrayList<>();
 
         boolean inMath = false;
@@ -64,7 +64,7 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
         for (String line : par.split("\n")) {
             if (inMath) {
                 if (isEndMath(line)) {
-                    outLines.add(processMath(p, TextUtils.join("<br>", mathLines)) + bgArgs);
+                    outLines.add(processMath(b, TextUtils.join("<br>", mathLines)) + bgArgs);
                     inMath = false;
                     mathLines = null;
                     bgArgs = "";
@@ -87,21 +87,24 @@ public class MathTypeSetter implements Function<Presentation,Presentation> {
         }
 
         if (mathLines != null) {
-            outLines.add(processMath(p, TextUtils.join("<br>", mathLines)) + bgArgs);
+            outLines.add(processMath(b, TextUtils.join("<br>", mathLines)) + bgArgs);
         }
 
-        return TextUtils.join("\n", outLines);
+        return b.withText(TextUtils.join("\n", outLines));
     }
 
-    protected String processMath(Presentation p, String mathLines) {
-        CompletableFuture<Bitmap> bmpf = new MathView(this.ctx, p, mathLines.trim()).futureBitmap();
+    protected String processMath(Slide.Builder b, String mathLines) {
+        CompletableFuture<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
 
         try {
-            Bitmap bmp = bmpf.get();
+            Bitmap bmp = bmpf.get(30, TimeUnit.SECONDS);
             return Presentation.asBackground(bmpUri(bmp));
-        } catch (Exception e) {
-            return mathLines;
+        } catch(TimeoutException e) {
+            throw new CancellationException(e.getMessage());
+        } catch (Exception ignored) {
         }
+
+        return mathLines;
     }
 
     protected Uri bmpUri(Bitmap bmp) throws IOException {

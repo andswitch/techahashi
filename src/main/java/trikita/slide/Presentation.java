@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
+import trikita.slide.ui.Style;
+
 @Value.Immutable
 @Gson.TypeAdapters
 public abstract class Presentation {
@@ -45,7 +47,7 @@ public abstract class Presentation {
         return TextUtils.join("\n\n", pages);
     }
 
-    public int page(int cursor) {
+    public int pageForCursor(int cursor) {
         String s = text();
         int p = 1;
 
@@ -61,7 +63,7 @@ public abstract class Presentation {
         return p;
     }
 
-    private int cursor(int page) {
+    private int cursorForPage(int page) {
         String s = text();
         int c = 0;
         char prev = 0, prevprev = 0;
@@ -78,7 +80,7 @@ public abstract class Presentation {
     }
 
     public int pageTurn(int cursor, int diff) {
-        return cursor(Math.max(1, Math.min(pages().length, page(cursor)+diff)));
+        return cursorForPage(Math.max(1, Math.min(pages().length, pageForCursor(cursor)+diff)));
     }
 
     public int getPdfWidth(Context context) {
@@ -88,6 +90,18 @@ public abstract class Presentation {
 
     public int getPdfHeight(Context ctx) {
         return getPdfWidth(ctx) * 9 / 16;
+    }
+
+    public int numberOfPages() {
+        return this.pages().length;
+    }
+
+    public Slide.Builder slideBuilder(int page, int width) {
+        if(page <= 0 || page > numberOfPages())
+            return null;
+
+        final String text = this.pages()[page-1];
+        return new Slide.Builder(text, this, width);
     }
 
     public static class Default {

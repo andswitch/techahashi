@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import trikita.jedux.Action;
 import trikita.jedux.Store;
@@ -116,28 +118,30 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         protected Boolean doInBackground(Void... params) {
             PdfDocument document = new PdfDocument();
             ParcelFileDescriptor pfd = null;
-            List<Slide> slides = App.getTaskController().getGeneratedSlides(true);
             try {
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
-                    p.getPdfWidth(context), p.getPdfHeight(context), 1
+                        p.getPdfWidth(context), p.getPdfHeight(context), 1
                 ).create();
                 Bitmap bmp = Bitmap.createBitmap(pageInfo.getContentRect().width(), pageInfo.getContentRect().height(), Bitmap.Config.ARGB_8888);
 
-                int i = 1;
-                for (Slide slide : slides) {
+                for (int i = 1; i <= p.numberOfPages(); ++i) {
                     Canvas c = new Canvas(bmp);
-                    slide.render(
-                            c,
-                            c.getWidth(), c.getHeight(),
-                            Style.SLIDE_FONT,
-                            Style.COLOR_SCHEMES[p.colorScheme()][0],
-                            Style.COLOR_SCHEMES[p.colorScheme()][1],
-                            true);
+
+                    CompletableFuture<Slide> future = App.getBuildController().build(p,i,p.getPdfWidth(context));
+                    try {
+                        Slide slide = future.get();
+                        slide.render(c, Style.SLIDE_FONT, true);
+                    } catch(ExecutionException e) {
+                        App.getBuildController().reportFailure(future);
+                        --i;
+                        continue;
+                    }
 
                     PdfDocument.Page page = document.startPage(pageInfo);
                     page.getCanvas().drawBitmap(bmp, c.getClipBounds(), pageInfo.getContentRect(), null);
                     document.finishPage(page);
-                    publishProgress(i++, slides.size()+1);
+
+                    publishProgress(i, p.numberOfPages());
                 }
 
                 pfd = context.getContentResolver().openFileDescriptor(uri, "w");

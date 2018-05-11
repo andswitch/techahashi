@@ -7,42 +7,44 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import java.util.concurrent.CompletableFuture;
 
 import trikita.slide.Presentation;
+import trikita.slide.Slide;
 import trikita.slide.functions.Crop;
 
 public class MathView {
 
     private WebView webView;
-    private final Handler mHandler;
-    private final Presentation presentation;
+    private Handler mHandler;
+    private final Slide.Builder builder;
     private final String maths;
     private final CompletableFuture<Bitmap> result;
 
-    public MathView(Activity act, Presentation p, String maths) {
-        this.presentation = p;
+    public MathView(Activity act, Slide.Builder b, String maths) {
+        this.builder = b;
         this.maths = maths;
         this.result = new CompletableFuture<>();
 
-        this.mHandler = new Handler(Looper.getMainLooper(), msg -> {
-            switch (msg.what) {
-                case 0:
-                    onLoaded();
-                    break;
-                case 1:
-                    onTypeset();
-                    break;
-            }
-            return true;
-        });
-
         act.runOnUiThread(() -> {
+            this.mHandler = new Handler(msg -> {
+                switch (msg.what) {
+                    case 0:
+                        onLoaded();
+                        break;
+                    case 1:
+                        onTypeset();
+                        break;
+                }
+                return true;
+            });
+
             this.webView = new WebView(act);
-            this.webView.layout(0, 0, p.getPdfWidth(act), p.getPdfHeight(act));
+            this.webView.layout(0, 0, b.width, b.height);
             this.webView.getSettings().setJavaScriptEnabled(true);
             this.webView.addJavascriptInterface(new MathViewJS(this.mHandler), "Android");
             this.webView.loadUrl("file:///android_asset/www/mathview.html");
@@ -58,9 +60,10 @@ public class MathView {
     }
 
     private void onLoaded() {
-        final int[] colorScheme = Style.COLOR_SCHEMES[presentation.colorScheme()];
+        Log.d("SLIDE","onLoaded");
+        int fg = Style.COLOR_SCHEMES[builder.presentation.colorScheme()][0];
         this.webView.loadUrl("javascript:typeset('"
-            + Integer.toHexString(colorScheme[0]).substring(2) + "','"
+            + Integer.toHexString(fg).substring(2) + "','"
             + maths.trim()
         + "')");
     }
