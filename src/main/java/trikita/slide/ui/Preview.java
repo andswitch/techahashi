@@ -1,11 +1,13 @@
 package trikita.slide.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
@@ -16,8 +18,11 @@ import trikita.slide.Slide;
 
 public class Preview extends View implements View.OnTouchListener {
 
+    Activity ctx;
+
     public Preview(Context context) {
         super(context);
+        this.ctx = (Activity)context;
         this.setOnTouchListener(this);
     }
 
@@ -34,17 +39,23 @@ public class Preview extends View implements View.OnTouchListener {
     }
 
     protected void onDraw(Canvas canvas) {
-        List<Slide> slides = App.getTaskController().getGeneratedSlides(false);
         Presentation p = App.getState().getCurrentPresentation();
-        int page = p.page(App.getMainLayout().cursor());
-        if (page >= 1 && page <= slides.size()) {
-            slides.get(page-1).render(canvas, getWidth(), getHeight(),
-                    Style.SLIDE_FONT,
-                    Style.COLOR_SCHEMES[p.colorScheme()][0],
-                    Style.COLOR_SCHEMES[p.colorScheme()][1],
-                    false);
-        } else {
+        int page = p.pageForCursor(App.getMainLayout().cursor());
+
+        CompletableFuture<Slide> slide = App.getBuildController().build(p, page, canvas.getWidth());
+        if(slide.isDone())
+            try {
+                slide.get().render(canvas, Style.SLIDE_FONT, false);
+            } catch(Exception ignored) {
+                ignored.printStackTrace();
+            }
+        else {
             canvas.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
+            slide.handleAsync((r,e) -> {
+                if(e != null) App.getBuildController().reportFailure(slide);
+                Anvil.render();
+                return e;
+            });
         }
     }
 

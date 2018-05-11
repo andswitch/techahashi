@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import trikita.anvil.Anvil;
+import trikita.slide.ui.Style;
 
 public class Slide {
 
@@ -78,7 +79,9 @@ public class Slide {
     private final Map<String,CacheTarget> bitmaps = new HashMap<>();
     private final SpannableStringBuilder text = new SpannableStringBuilder();
 
-    public Slide(String s) {
+    private final int fg, bg;
+
+    public Slide(String s, int fg, int bg) {
         int emSpanStart = -1;
         int codeSpanStart = -1;
         for (String line : s.split("\n")) {
@@ -133,6 +136,9 @@ public class Slide {
         if (text.length() > 0 && text.charAt(text.length() - 1) == '\n') {
             text.delete(text.length() - 1, text.length());
         }
+
+        this.fg = fg;
+        this.bg = bg;
     }
 
     private static class CacheTarget implements Target {
@@ -159,7 +165,10 @@ public class Slide {
         }
     }
 
-    public void render(Canvas canvas, int width, int height, String typeface, int fg, int bg, boolean blocking) {
+    public void render(Canvas canvas, String typeface, boolean blocking) {
+        final int width = canvas.getWidth();
+        final int height = canvas.getHeight();
+
         TextPaint textPaint = new TextPaint();
         canvas.drawColor(bg);
         textPaint.setColor(fg);
@@ -247,6 +256,29 @@ public class Slide {
                 canvas.translate(-l,-t);
                 return;
             }
+        }
+    }
+
+    public static class Builder {
+        public final Presentation presentation;
+        public final String text;
+        public final int width;
+        public final int height;
+
+        public Builder(String text, Presentation p, int width) {
+            this.text = text;
+            this.presentation = p;
+            this.width = width;
+            this.height = width * 9 / 16;
+        }
+
+        public Builder withText(String text) {
+            return new Builder(text, presentation, width);
+        }
+
+        public Slide build() {
+            int[] cs = Style.COLOR_SCHEMES[presentation.colorScheme()];
+            return new Slide(text, cs[0], cs[1]);
         }
     }
 }

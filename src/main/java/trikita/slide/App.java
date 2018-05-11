@@ -8,16 +8,15 @@ import trikita.jedux.Action;
 import trikita.jedux.Store;
 import trikita.slide.middleware.PersistanceController;
 import trikita.slide.middleware.StorageController;
-import trikita.slide.middleware.TaskController;
+import trikita.slide.middleware.BuildController;
 import trikita.slide.middleware.WindowController;
-import trikita.slide.ui.MainActivity;
 import trikita.slide.ui.MainLayout;
 
 public class App extends Application {
-    private static App instance;
+    public static App instance;
 
     private Store<Action<ActionType, ?>, State> store;
-    private TaskController taskController;
+    private BuildController buildController;
     private MainLayout mainLayout;
 
     @Override
@@ -31,14 +30,14 @@ public class App extends Application {
             initialState = State.Default.build(this);
         }
 
-        this.taskController = new TaskController();
+        this.buildController = new BuildController();
 
         this.store = new Store<>(new State.Reducer(),
             initialState,
             persistanceController,
             new WindowController(),
             new StorageController(this),
-            this.taskController
+            this.buildController
         );
 
         this.store.subscribe(Anvil::render);
@@ -48,15 +47,14 @@ public class App extends Application {
         return instance.store.getState();
     }
 
-    public static TaskController getTaskController() { return instance.taskController; }
+    public static BuildController getBuildController() { return instance.buildController; }
 
     public static MainLayout getMainLayout() { return instance.mainLayout; }
 
     public static void setMainLayout(MainLayout m) { instance.mainLayout = m; }
 
     public static void setMainActivity(Activity m) {
-        instance.taskController.setActivity(m);
-        dispatch(new Action<>(ActionType.INIT));
+        instance.buildController.setActivity(m);
     }
 
     public static void dispatch(Action<ActionType, ?> action) {
