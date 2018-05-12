@@ -19,7 +19,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -38,9 +37,11 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
     public static final int PICK_IMAGE_REQUEST_CODE = 44;
     public static final int EXPORT_PDF_REQUEST_CODE = 46;
 
-    private Context mContext;
+    private final Context mContext;
 
     private static final int PDF_EXPORT_NOTIFICATION_ID = 0;
+    private static final String PDF_EXPORT_NOTIFICATION_CHANNEL = "SLIDEPDFEXPORT";
+
     private final NotificationManagerCompat notificationManager;
     private final NotificationCompat.Builder mBuilder;
 
@@ -48,7 +49,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         mContext = c;
 
         notificationManager = NotificationManagerCompat.from(mContext);
-        mBuilder = new NotificationCompat.Builder(mContext);
+        mBuilder = new NotificationCompat.Builder(mContext, PDF_EXPORT_NOTIFICATION_CHANNEL);
         mBuilder.setContentTitle(c.getString(R.string.notifications_title))
             .setContentText(c.getString(R.string.notifications_exporting_pdf))
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -61,16 +62,13 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
         next.dispatch(action);
         if (action.type == ActionType.CREATE_PDF) {
             createPdf((Activity)action.value);
-            return;
         } else if (action.type == ActionType.EXPORT_PDF) {
             int PROGRESS_MAX = App.getState().getCurrentPresentation().pages().length;
             mBuilder.setProgress(PROGRESS_MAX, 0, false);
             notificationManager.notify(PDF_EXPORT_NOTIFICATION_ID, mBuilder.build());
             new PdfExportTask(store.getState().getCurrentPresentation(), (Uri) action.value, mContext, notificationManager, mBuilder).execute();
-            return;
         } else if (action.type == ActionType.PICK_IMAGE) {
             pickImage((Activity) action.value);
-            return;
         } else if (action.type == ActionType.INSERT_IMAGE) {
             Presentation p = store.getState().getCurrentPresentation();
             String s = p.text();
@@ -83,19 +81,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 s = s.substring(0, startOfLine+1)+"@"+(action.value).toString()+"\n"+s.substring(startOfLine+1);
             }
             App.dispatch(new Action<>(ActionType.SET_TEXT, s));
-            return;
-        } /*else if(action.type == ActionType.MATH_TYPESET_COMPLETE) {
-            try {
-                File f = File.createTempFile("bmp",".png", mContext.getCacheDir());
-                OutputStream s = new FileOutputStream(f);
-                Bitmap bmp = (Bitmap)action.value;
-                bmp.compress(Bitmap.CompressFormat.PNG, 100, s);
-                s.close();
-                App.dispatch(new Action<>(ActionType.INSERT_IMAGE, f.toURI()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
+        }
     }
 
     private static class PdfExportTask extends AsyncTask<Void, Integer, Boolean> {

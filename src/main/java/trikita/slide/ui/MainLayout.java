@@ -48,7 +48,7 @@ public class MainLayout extends RenderableView {
 
     public MainLayout(Context c) {
         super(c);
-        lastCursor = 0;
+        lastCursor = App.getState().getCurrentPresentation().cursor();
     }
 
     public int cursor() {
@@ -91,6 +91,7 @@ public class MainLayout extends RenderableView {
                     mEditor.setSelection(lastCursor);
                     mEditor.setOnSelectionChangedListener(pos -> {
                         lastCursor = pos;
+                        App.dispatch(new Action<>(ActionType.SET_CURSOR, lastCursor));
                         Anvil.render();
                     });
                 });
@@ -158,15 +159,9 @@ public class MainLayout extends RenderableView {
             .setTitle(getContext().getString(R.string.om_remove))
             .setCancelable(true)
             .setMessage(R.string.are_you_sure)
-            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    App.dispatch(new Action<>(ActionType.REMOVE_PRESENTATION, getContext()));
-                }
-            })
-            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                }
-            })
+            .setPositiveButton(R.string.btn_ok, (dialog, whichButton) ->
+                App.dispatch(new Action<>(ActionType.REMOVE_PRESENTATION, getContext())))
+            .setNegativeButton(R.string.dialog_btn_cancel, (dialog, whichButton) -> {})
             .show();
     }
 
@@ -221,18 +216,12 @@ public class MainLayout extends RenderableView {
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.om_config_plantuml)
             .setView(contents)
-            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    App.dispatch(new Action<>(ActionType.CONFIGURE_PLANTUML,
-                        new Pair<>(enable.isChecked(),
-                            new Pair<>(txtUrl.getText().toString(),
-                                new Pair<>(txtTemplateBefore.getText().toString(), txtTemplateAfter.getText().toString())))));
-                }
-            })
-            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                }
-            })
+            .setPositiveButton(R.string.btn_ok, (dialog, whichButton) ->
+                App.dispatch(new Action<>(ActionType.CONFIGURE_PLANTUML,
+                new Pair<>(enable.isChecked(),
+                    new Pair<>(txtUrl.getText().toString(),
+                        new Pair<>(txtTemplateBefore.getText().toString(), txtTemplateAfter.getText().toString()))))))
+            .setNegativeButton(R.string.dialog_btn_cancel, (dialog, whichButton) -> {})
             .show();
     }
 
@@ -268,17 +257,11 @@ public class MainLayout extends RenderableView {
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.om_template)
             .setView(contents)
-            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    App.dispatch(new Action<>(ActionType.SET_TEMPLATE,
-                        new Pair<>(txtBefore.getText().toString(),
-                                    txtAfter.getText().toString())));
-                }
-            })
-            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                }
-            })
+            .setPositiveButton(R.string.btn_ok, (dialog, whichButton) ->
+                App.dispatch(new Action<>(ActionType.SET_TEMPLATE,
+                new Pair<>(txtBefore.getText().toString(),
+                            txtAfter.getText().toString()))))
+            .setNegativeButton(R.string.dialog_btn_cancel, (dialog, whichButton) -> {})
             .show();
     }
 
@@ -298,17 +281,12 @@ public class MainLayout extends RenderableView {
         new AlertDialog.Builder(getContext())
             .setTitle(R.string.select_resolution)
             .setView(contents)
-            .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    int selected = spinner.getSelectedItemPosition();
-                    App.dispatch(new Action<>(ActionType.SET_PDF_RESOLUTION, selected));
-                    App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) getContext()));
-                }
+            .setPositiveButton(R.string.btn_ok, (dialog, whichButton) -> {
+                int selected = spinner.getSelectedItemPosition();
+                App.dispatch(new Action<>(ActionType.SET_PDF_RESOLUTION, selected));
+                App.dispatch(new Action<>(ActionType.CREATE_PDF, (Activity) getContext()));
             })
-            .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                }
-            })
+            .setNegativeButton(R.string.dialog_btn_cancel, (dialog, whichButton) -> {})
             .show();
     }
 }

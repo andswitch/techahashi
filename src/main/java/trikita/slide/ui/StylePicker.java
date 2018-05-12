@@ -46,16 +46,17 @@ public class StylePicker extends RenderableView {
         });
     }
 
-    private final RenderableAdapter mStyleAdapter = RenderableAdapter.withItems(Arrays.asList(Style.COLOR_SCHEMES), (index, item) -> {
-        textView(() -> {
+    private final RenderableAdapter mStyleAdapter = RenderableAdapter.withItems(
+        Arrays.asList(Style.COLOR_SCHEMES),
+        (index, item) -> textView(() -> {
             Style.StylePicker.circle(item[0], item[1]);
             if (App.getState().getCurrentPresentation().colorScheme() == index) {
                 Style.StylePicker.itemSelected();
             } else {
                 Style.StylePicker.itemNormal();
             }
-        });
-    });
+        })
+    );
 
     private void onStyleClicked(int pos) {
         App.dispatch(new Action<>(ActionType.SET_COLOR_SCHEME, pos));

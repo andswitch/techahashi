@@ -9,6 +9,7 @@ import org.immutables.value.Value;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import trikita.jedux.Action;
 import trikita.jedux.Store;
@@ -44,20 +45,25 @@ public abstract class State {
 
     static class Reducer implements Store.Reducer<Action<ActionType, ?>, State> {
         private void vibrateOnPresentationChange(Context ctx) {
-            ((Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE))
+            ((Vibrator) Objects.requireNonNull(ctx.getSystemService(Context.VIBRATOR_SERVICE)))
                                 .vibrate(50);
         }
 
         public State reduce(Action<ActionType, ?> a, State s) {
             switch (a.type) {
+                case SET_CURSOR:
+                    return ImmutableState.copyOf(s)
+                            .withCurrentPresentation(s.getCurrentPresentation().withCursor((Integer)a.value));
                 case SET_TEXT:
                     return ImmutableState.copyOf(s).withCurrentPresentation(s.getCurrentPresentation().withText((String)a.value));
                 case NEXT_PAGE:
                     App.getMainLayout().cursor(s.getCurrentPresentation().pageTurn(App.getMainLayout().cursor(),1));
-                    return s;
+                    // state has changed, do not return s!!
+                    return App.getState();
                 case PREV_PAGE:
                     App.getMainLayout().cursor(s.getCurrentPresentation().pageTurn(App.getMainLayout().cursor(),-1));
-                    return s;
+                    // state has changed, do not return s!!
+                    return App.getState();
                 case OPEN_PRESENTATION:
                     return ImmutableState.copyOf(s).withPresentationMode(true);
                 case CLOSE_PRESENTATION:

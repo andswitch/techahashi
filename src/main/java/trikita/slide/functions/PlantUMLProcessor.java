@@ -7,13 +7,10 @@ import net.sourceforge.plantuml.code.URLEncoder;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.zip.Deflater;
 
-import trikita.slide.ImmutablePresentation;
 import trikita.slide.Presentation;
 import trikita.slide.Slide;
 

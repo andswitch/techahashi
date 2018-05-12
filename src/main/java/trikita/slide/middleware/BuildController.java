@@ -1,7 +1,6 @@
 package trikita.slide.middleware;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
@@ -25,8 +24,8 @@ import trikita.slide.functions.SlideTemplateProcessor;
 public class BuildController implements Store.Middleware<Action<ActionType, ?>, State> {
 
     protected Activity ctx;
-    protected Map<Pair<Integer,Integer>, CompletableFuture<Slide>> buildCache;
-    protected Handler buildHandler;
+    protected final Map<Pair<Integer,Integer>, CompletableFuture<Slide>> buildCache;
+    protected final Handler buildHandler;
 
     private static final int REGENERATION_TIMEOUT = 300;
 

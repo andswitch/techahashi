@@ -5,15 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import java.util.concurrent.CompletableFuture;
 
-import trikita.slide.Presentation;
 import trikita.slide.Slide;
 import trikita.slide.functions.Crop;
 
@@ -37,7 +34,7 @@ public class MathView {
                         onLoaded();
                         break;
                     case 1:
-                        onTypeset();
+                        onTypeset((Integer)msg.obj);
                         break;
                 }
                 return true;
@@ -53,14 +50,13 @@ public class MathView {
         });
     }
 
-    private void onTypeset() {
+    private void onTypeset(int fontSize) {
         final Bitmap bmp = Bitmap.createBitmap(this.webView.getWidth(), this.webView.getHeight(), Bitmap.Config.ARGB_8888);
         this.webView.draw(new Canvas(bmp));
-        CompletableFuture.runAsync(() -> result.complete(new Crop().apply(bmp)));
+        CompletableFuture.runAsync(() -> result.complete(new Crop().apply(bmp, fontSize)));
     }
 
     private void onLoaded() {
-        Log.d("SLIDE","onLoaded");
         int fg = Style.COLOR_SCHEMES[builder.presentation.colorScheme()][0];
         this.webView.loadUrl("javascript:typeset('"
             + Integer.toHexString(fg).substring(2) + "','"
@@ -73,15 +69,15 @@ public class MathView {
     }
 
     private static class MathViewJS {
-        private Handler mHandler;
+        private final Handler mHandler;
 
         MathViewJS(Handler m) {
             this.mHandler = m;
         }
 
         @JavascriptInterface
-        void onTypeset() {
-            Message.obtain(this.mHandler, 1).sendToTarget();
+        void onTypeset(int fontSize) {
+            Message.obtain(this.mHandler, 1, fontSize).sendToTarget();
         }
 
         @JavascriptInterface
