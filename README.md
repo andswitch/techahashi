@@ -7,7 +7,7 @@
 
 ## Summary
 
-* minSdk 24 (CompletableFuture is too awesome)
+* minSdk 24
 * Updated to use all the latest dependencies of Picasso, etc.
 * Send PlantUML diagrams to a PlantUML server and render the generated
   image.
