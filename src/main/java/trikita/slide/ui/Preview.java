@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import trikita.anvil.Anvil;
@@ -18,11 +17,8 @@ import trikita.slide.Slide;
 
 public class Preview extends View implements View.OnTouchListener {
 
-    Activity ctx;
-
     public Preview(Context context) {
         super(context);
-        this.ctx = (Activity)context;
         this.setOnTouchListener(this);
     }
 

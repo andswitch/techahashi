@@ -1,11 +1,8 @@
 package trikita.slide.functions;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 
 import java.io.File;
@@ -13,25 +10,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import trikita.slide.App;
-import trikita.slide.ImmutablePresentation;
 import trikita.slide.Presentation;
 import trikita.slide.Slide;
 import trikita.slide.ui.MathView;
 
 public class MathTypeSetter implements Function<Slide.Builder,Slide.Builder> {
 
-    protected Activity ctx;
+    protected final Activity ctx;
 
     public MathTypeSetter(Activity ctx) {
         this.ctx = ctx;
@@ -44,11 +36,11 @@ public class MathTypeSetter implements Function<Slide.Builder,Slide.Builder> {
 
     protected static final String startMath = "@startmath";
 
-    protected static final boolean isStartMath(String s) {
+    protected static boolean isStartMath(String s) {
         return s.startsWith(startMath);
     }
 
-    protected static final boolean isEndMath(String s) {
+    protected static boolean isEndMath(String s) {
         return s.startsWith("@endmath");
     }
 
@@ -97,7 +89,7 @@ public class MathTypeSetter implements Function<Slide.Builder,Slide.Builder> {
         CompletableFuture<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
 
         try {
-            Bitmap bmp = bmpf.get(30, TimeUnit.SECONDS);
+            Bitmap bmp = bmpf.get(10, TimeUnit.SECONDS);
             return Presentation.asBackground(bmpUri(bmp));
         } catch(TimeoutException e) {
             throw new CancellationException(e.getMessage());

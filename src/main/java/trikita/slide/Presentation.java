@@ -7,12 +7,11 @@ import android.text.TextUtils;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
-import trikita.slide.ui.Style;
-
 @Value.Immutable
 @Gson.TypeAdapters
 public abstract class Presentation {
     public abstract String text();
+    public abstract int cursor();
 
     public abstract int colorScheme();
 
@@ -41,10 +40,6 @@ public abstract class Presentation {
 
     public String[] pages() {
         return text().split("(\n){2,}");
-    }
-
-    public static String joinPages(String[] pages) {
-        return TextUtils.join("\n\n", pages);
     }
 
     public int pageForCursor(int cursor) {
@@ -108,6 +103,7 @@ public abstract class Presentation {
         public static ImmutablePresentation build(Context c) {
             return ImmutablePresentation.builder()
                     .text(c.getString(R.string.tutorial_text))
+                    .cursor(0)
                     .colorScheme(0)
                     .plantUMLEndPoint("https://plantuml.nitorio.us/png")
                     .plantUMLEnabled(false)

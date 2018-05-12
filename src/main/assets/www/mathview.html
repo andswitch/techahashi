@@ -14,7 +14,7 @@
     var ma = maths.split("<br>");
     for(i in ma) {
       var formula = ma[i];
-      longestLine = Math.max(longestLine, formula.length);
+      longestLine = Math.max(longestLine, formula.replace(" ","").length);
       if(formula === "")
         inner.push("");
       else
@@ -35,7 +35,7 @@
   });
 
   MathJax.Hub.Register.MessageHook("End Process", function() {
-    Android.onTypeset();
+    Android.onTypeset(parseInt(mathTarget().style.fontSize));
   });
 </script>
 <script type="text/javascript" src="./MathJax/MathJax.js"></script>
