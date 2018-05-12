@@ -14,6 +14,7 @@ import trikita.slide.ActionType;
 import trikita.slide.App;
 import trikita.slide.Presentation;
 import trikita.slide.Slide;
+import trikita.slide.functions.LoadingScreenRenderer;
 
 public class Preview extends View implements View.OnTouchListener {
 
@@ -46,7 +47,9 @@ public class Preview extends View implements View.OnTouchListener {
                 ignored.printStackTrace();
             }
         else {
-            canvas.drawColor(Style.COLOR_SCHEMES[p.colorScheme()][1]);
+            final int[] cs = Style.COLOR_SCHEMES[p.colorScheme()];
+            (new LoadingScreenRenderer(this.getContext(), cs[0], cs[1]))
+                .accept(canvas, "Building slide...");
             slide.handleAsync((r,e) -> {
                 if(e != null) App.getBuildController().reportFailure(slide);
                 Anvil.render();

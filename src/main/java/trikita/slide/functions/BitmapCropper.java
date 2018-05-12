@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
-public class Crop implements BiFunction<Bitmap,Integer,Bitmap> {
+public class BitmapCropper implements BiFunction<Bitmap,Integer,Bitmap> {
     @Override
     public Bitmap apply(Bitmap bitmap, Integer fontSize) {
         final int c = 0x00000000;
