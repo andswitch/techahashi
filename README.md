@@ -26,8 +26,7 @@
 
 ## Other changes
 
-* Add the ability to start and end monospace text with a back tick
-  "`" just like emphasis with "*".
+* Begin and end monospace text with a back tick "`" just like emphasis with "*".
 * When exporting to PDF, render the Slide to a Bitmap and then render
   that to PDF. This is uglier, but it allows you to use Emoji in your
   PDFs. :)

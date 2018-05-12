@@ -93,10 +93,6 @@ public class Slide {
                 text.append(line.substring(1)).append('\n');
                 text.setSpan(new RelativeSizeSpan(1.6f), start, text.length(), 0);
                 text.setSpan(new StyleSpan(Typeface.BOLD), start, text.length(), 0);
-            } else if (line.startsWith("  ")) {
-                int start = text.length();
-                text.append(line.substring(2)).append('\n');
-                text.setSpan(new TypefaceSpan("monospace"), start, text.length(), 0);
             } else {
                 if (Presentation.possibleLineBreak(line)) {
                     line = line.substring(1);
