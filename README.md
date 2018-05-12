@@ -1,8 +1,8 @@
 # PlantUML + MathJax + Other changes
 
 <div>
-<img alt="PlantUML Demo 1" src="uml1.png" width="40%" />
-<img alt="PlantUML Demo 2" src="uml2.png" width="40%" />
+<img alt="PlantUML Demo" src="uml.png" width="40%" />
+<img alt="MathJax Demo" src="mathjax.png" width="40%" />
 </div>
 
 ## Summary
