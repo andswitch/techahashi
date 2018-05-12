@@ -41,7 +41,7 @@ public class BitmapCropper implements BiFunction<Bitmap,Integer,Bitmap> {
         if((dx != 0 && dy != 0) || (dx == 0 && dy == 0))
             return -1;
 
-        final int fontSizePx = Math.max(1, (int)((double)bmp.getWidth() / 100.0 * (double)fontSize));
+        final int fontSizePx = Math.max(1, (int)((double)bmp.getWidth() / 100.0 * (double)(fontSize-1)));
         final int stepSize = Math.max(1, (int)Math.ceil((double)fontSizePx * 0.05));
 
         int px = dx != 0 ? start : 0;

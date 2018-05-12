@@ -1,4 +1,4 @@
-# PlantUML for Slide + Other changes
+# PlantUML + MathJax + Other changes
 
 <div>
 <img alt="PlantUML Demo 1" src="uml1.png" width="40%" />
@@ -7,7 +7,7 @@
 
 ## Summary
 
-* Updated Gradle to 4.4, minSdkVersion 21, targetSdkVersion 27.
+* minSdk 24 (CompletableFuture is too awesome)
 * Updated to use all the latest dependencies of Picasso, etc.
 * Send PlantUML diagrams to a PlantUML server and render the generated
   image.
@@ -22,6 +22,7 @@
   menu because of the confidentiality issues. Users should be aware
   that an external server is used and the diagram data is sent via
   internet.*
+* Allow input of mathematical formulas with MathJax.
 
 ## Other changes
 
@@ -30,7 +31,8 @@
 * When exporting to PDF, render the Slide to a Bitmap and then render
   that to PDF. This is uglier, but it allows you to use Emoji in your
   PDFs. :)
-* Added the ability to select resolution when exporting PDF.
+* Added the ability to select resolution when exporting PDF. You can
+  export to 720p, 1080p, and 4K.
 * Replaced general open/save document functionality with a
   "Presentation Deck". Simply swipe left or right to go to a
   previous/next presentation. 
@@ -39,3 +41,4 @@
 * Added notification for PDF export.
 * Preview now listens to swipe left/right. Close the preview by
   tapping on a slide.
+* Added loading screens to make the app more responsive.
