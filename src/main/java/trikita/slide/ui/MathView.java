@@ -12,7 +12,7 @@ import android.webkit.WebView;
 import java.util.concurrent.CompletableFuture;
 
 import trikita.slide.Slide;
-import trikita.slide.functions.Crop;
+import trikita.slide.functions.BitmapCropper;
 
 public class MathView {
 
@@ -53,7 +53,7 @@ public class MathView {
     private void onTypeset(int fontSize) {
         final Bitmap bmp = Bitmap.createBitmap(this.webView.getWidth(), this.webView.getHeight(), Bitmap.Config.ARGB_8888);
         this.webView.draw(new Canvas(bmp));
-        CompletableFuture.runAsync(() -> result.complete(new Crop().apply(bmp, fontSize)));
+        CompletableFuture.runAsync(() -> result.complete(new BitmapCropper().apply(bmp, fontSize)));
     }
 
     private void onLoaded() {

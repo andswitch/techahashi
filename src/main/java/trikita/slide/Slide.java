@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import trikita.anvil.Anvil;
+import trikita.slide.functions.LoadingScreenRenderer;
 import trikita.slide.ui.Style;
 
 public class Slide {
@@ -168,6 +169,7 @@ public class Slide {
     public void render(Canvas canvas, String typeface, boolean blocking) {
         final int width = canvas.getWidth();
         final int height = canvas.getHeight();
+        boolean loadingImages = false;
 
         TextPaint textPaint = new TextPaint();
         canvas.drawColor(bg);
@@ -208,8 +210,16 @@ public class Slide {
                     Gravity.apply(img.gravity, b.getWidth(), b.getHeight(),
                             new Rect(0, 0, width, height), r);
                     canvas.drawBitmap(b, r.left, r.top, textPaint);
+                } else {
+                    loadingImages = true;
                 }
             }
+        }
+
+        if(loadingImages) {
+            (new LoadingScreenRenderer(App.instance.getApplicationContext(), fg, bg))
+                .accept(canvas, "Loading images...");
+            return;
         }
 
         float margin = 0.1f;
