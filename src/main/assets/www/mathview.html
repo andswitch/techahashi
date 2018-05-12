@@ -20,7 +20,7 @@
       else
         inner.push("\\("+formula+"\\)");
     }
-    mathTarget().style.fontSize = ""+Math.floor(100/longestLine)+"vw";
+    mathTarget().style.fontSize = ""+Math.floor(90/longestLine)+"vw";
     mathTarget().innerHTML = inner.join("<br/>");
     MathJax.Hub.Queue(["Typeset",MathJax.Hub,"math_target"]);
   }
