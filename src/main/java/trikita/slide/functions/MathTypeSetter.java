@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -88,7 +88,7 @@ public class MathTypeSetter implements Callable<Slide.Builder> {
     }
 
     protected String processMath(Slide.Builder b, String mathLines) {
-        FutureTask<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
+        Future<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
 
         try {
             Bitmap bmp = bmpf.get(10, TimeUnit.SECONDS);

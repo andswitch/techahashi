@@ -11,6 +11,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import trikita.slide.Slide;
@@ -83,7 +84,7 @@ public class MathView {
         + "')");
     }
 
-    public FutureTask<Bitmap> futureBitmap() {
+    public Future<Bitmap> futureBitmap() {
         return result;
     }
 
