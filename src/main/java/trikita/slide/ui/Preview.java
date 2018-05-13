@@ -17,9 +17,12 @@ import trikita.slide.functions.LoadingScreenRenderer;
 
 public class Preview extends View implements View.OnTouchListener {
 
+    protected int buildTimeout;
+
     public Preview(Context context) {
         super(context);
         this.setOnTouchListener(this);
+        this.buildTimeout = 5;
     }
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -38,7 +41,12 @@ public class Preview extends View implements View.OnTouchListener {
         Presentation p = App.getState().getCurrentPresentation();
         int page = p.pageForCursor(App.getMainLayout().cursor());
 
-        Future<Slide> slide = App.getBuildController().build(p, page, canvas.getWidth(), Anvil::render);
+        Future<Slide> slide = App.getBuildController().build(
+            p, page, canvas.getWidth(),
+            buildTimeout,
+            Anvil::render,
+            () -> buildTimeout += 5
+        );
         if(slide.isDone())
             try {
                 slide.get().render(canvas, Style.SLIDE_FONT, false);

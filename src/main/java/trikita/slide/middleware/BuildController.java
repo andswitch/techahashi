@@ -8,9 +8,11 @@ import android.util.Pair;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeoutException;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
@@ -44,7 +46,7 @@ public class BuildController implements Store.Middleware<Action<ActionType, ?>, 
             return false;
         });
     }
-    
+
     private BuildController cancelBuildsAndInvalidateBuildCache(boolean now) {
         buildHandler.removeMessages(0);
         if(now) {
@@ -69,7 +71,7 @@ public class BuildController implements Store.Middleware<Action<ActionType, ?>, 
         return this;
     }
 
-    public Future<Slide> build(Presentation p, int page, int width, Runnable onDone) {
+    public Future<Slide> build(Presentation p, int page, int width, int timeout, Runnable onDone, Runnable onTimeout) {
         final Pair<Integer,Integer> cacheKey = new Pair<>(page,width);
 
         if(buildCache.containsKey(cacheKey))
@@ -78,7 +80,7 @@ public class BuildController implements Store.Middleware<Action<ActionType, ?>, 
         final FutureTask<Slide> future = new FutureTask<>(() -> {
             try {
                 Slide.Builder builder =
-                    new MathTypeSetter(ctx,
+                    new MathTypeSetter(ctx, timeout,
                     new SlideTemplateProcessor(
                     p.slideBuilder(page, width)
                 ).call()
@@ -90,6 +92,10 @@ public class BuildController implements Store.Middleware<Action<ActionType, ?>, 
                 return builder.build();
             } catch(Exception e) {
                 App.getBuildController().reportFailure(cacheKey);
+                if(e.getCause() instanceof CancellationException
+                    && e.getCause().getCause() instanceof TimeoutException
+                    && onTimeout != null)
+                    onTimeout.run();
                 throw e;
             } finally {
                 if(onDone != null) onDone.run();

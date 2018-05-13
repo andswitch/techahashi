@@ -25,10 +25,12 @@ public class MathTypeSetter implements Callable<Slide.Builder> {
 
     protected final Activity ctx;
     protected final Slide.Builder b;
+    protected final int timeout;
 
-    public MathTypeSetter(Activity ctx, Slide.Builder b) {
+    public MathTypeSetter(Activity ctx, int timeout, Slide.Builder b) {
         this.ctx = ctx;
         this.b = b;
+        this.timeout = timeout;
     }
 
     @Override
@@ -91,10 +93,10 @@ public class MathTypeSetter implements Callable<Slide.Builder> {
         Future<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
 
         try {
-            Bitmap bmp = bmpf.get(10, TimeUnit.SECONDS);
+            Bitmap bmp = bmpf.get(timeout, TimeUnit.SECONDS);
             return Presentation.asBackground(bmpUri(bmp));
         } catch(TimeoutException e) {
-            throw new CancellationException(e.getMessage());
+            throw (CancellationException) new CancellationException().initCause(e);
         } catch (Exception ignored) {
         }
 

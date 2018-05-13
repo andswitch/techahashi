@@ -32,7 +32,6 @@
     <string name="om_remove">Remove Presentation</string>
     <string name="are_you_sure">Are you sure?</string>
 
-    <string name="notifications_title">Slide</string>
-    <string name="notifications_exporting_pdf">Exporting PDF</string>
-    <string name="completed_export_pdf">PDF export completed</string>
+    <string name="notifications_exporting_pdf_progress">Exporting… (may take time).</string>
+    <string name="notifications_exporting_pdf_complete">Export completed. Tap to open PDF.</string>
 </resources>
