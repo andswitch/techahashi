@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
 import trikita.jedux.Action;
 import trikita.jedux.Store;
@@ -49,8 +51,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
 
         notificationManager = NotificationManagerCompat.from(mContext);
         mBuilder = new NotificationCompat.Builder(mContext, PDF_EXPORT_NOTIFICATION_CHANNEL);
-        mBuilder.setContentTitle(c.getString(R.string.notifications_title))
-            .setContentText(c.getString(R.string.notifications_exporting_pdf))
+        mBuilder.setContentTitle(c.getString(R.string.om_export_pdf))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setAutoCancel(true);
@@ -97,6 +98,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
             this.notificationManager = notificationManager;
             this.mBuilder = mBuilder;
             this.uri = uri;
+            mBuilder.setContentText(ctx.getString(R.string.notifications_exporting_pdf_progress));
         }
 
         @Override
@@ -112,26 +114,48 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 for (int i = 1; i <= p.numberOfPages(); ++i) {
                     Canvas c = new Canvas(bmp);
 
-                    Future<Slide> future = App.getBuildController().build(p,i,p.getPdfWidth(context), null);
-                    try {
-                        Slide slide = future.get();
-                        slide.render(c, Style.SLIDE_FONT, true);
-                    } catch(ExecutionException e) {
-                        --i;
-                        continue;
+                    boolean doBuild = true;
+                    int buildTimeout = 10;
+                    int retries = 0;
+                    final int maxRetries = 4;
+
+                    final int maxProgress = p.numberOfPages()*(maxRetries+1)+1;
+
+                    while(doBuild) {
+                        publishProgress((i-1)*(maxRetries+1)+retries, maxProgress);
+
+                        Future<Slide> future = App.getBuildController().build(
+                            p, i, p.getPdfWidth(context), buildTimeout,
+                            null, null
+                        );
+                        try {
+                            Slide slide = future.get();
+                            slide.render(c, Style.SLIDE_FONT, true);
+                            doBuild = false;
+                        } catch (ExecutionException e) {
+                            if (e.getCause() instanceof CancellationException
+                                    && e.getCause().getCause() instanceof TimeoutException
+                                    && retries < maxRetries) {
+                                buildTimeout += 20;
+                                ++retries;
+                            }
+                            else
+                                throw e;
+                        }
                     }
 
                     PdfDocument.Page page = document.startPage(pageInfo);
                     page.getCanvas().drawBitmap(bmp, c.getClipBounds(), pageInfo.getContentRect(), null);
                     document.finishPage(page);
 
-                    publishProgress(i, p.numberOfPages());
+                    publishProgress(i*(maxRetries+1), maxProgress);
                 }
 
                 pfd = context.getContentResolver().openFileDescriptor(uri, "w");
                 if (pfd != null) {
                     FileOutputStream fos = new FileOutputStream(pfd.getFileDescriptor());
                     document.writeTo(fos);
+                    publishProgress(1, 1);
                     return true;
                 } else {
                     return false;
@@ -164,7 +188,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 target.setData(uri);
                 target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mBuilder
-                    .setContentText(context.getString(R.string.completed_export_pdf))
+                    .setContentText(context.getString(R.string.notifications_exporting_pdf_complete))
                     .setContentIntent(PendingIntent.getActivity(this.context, 0, target, PendingIntent.FLAG_UPDATE_CURRENT));
             }
             mBuilder.setProgress(0,0,false);
