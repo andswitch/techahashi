@@ -7,23 +7,24 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.TextPaint;
 
-import java.util.function.BiConsumer;
-
 import trikita.slide.R;
-import trikita.slide.ui.Style;
 
-public class LoadingScreenRenderer implements BiConsumer<Canvas,String> {
+public class LoadingScreenRenderer implements Runnable {
     private final Context ctx;
     private final int fg, bg;
+    private final Canvas canvas;
+    private final String s;
 
-    public LoadingScreenRenderer(Context ctx, int fg, int bg) {
+    public LoadingScreenRenderer(Context ctx, int fg, int bg, Canvas canvas, String s) {
         this.ctx = ctx;
         this.fg = fg;
         this.bg = bg;
+        this.canvas = canvas;
+        this.s = s;
     }
 
     @Override
-    public void accept(Canvas canvas, String s) {
+    public void run() {
         canvas.drawColor(bg);
 
         int dstSz = Math.max(1, canvas.getWidth() / 10);

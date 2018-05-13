@@ -18,7 +18,7 @@
       if(formula === "")
         inner.push("");
       else
-        inner.push("\\("+formula+"\\)");
+        inner.push("$$"+formula+"$$");
     }
     mathTarget().style.fontSize = ""+Math.floor(90/longestLine)+"vw";
     mathTarget().innerHTML = inner.join("<br/>");

@@ -8,15 +8,21 @@ import net.sourceforge.plantuml.code.URLEncoder;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.concurrent.Callable;
 import java.util.zip.Deflater;
 
 import trikita.slide.Presentation;
 import trikita.slide.Slide;
 
-public class PlantUMLProcessor implements Function<Slide.Builder,Slide.Builder> {
+public class PlantUMLProcessor implements Callable<Slide.Builder> {
+    protected final Slide.Builder p;
+
+    public PlantUMLProcessor(Slide.Builder b) {
+        this.p = b;
+    }
+
     @Override
-    public Slide.Builder apply(Slide.Builder p) {
+    public Slide.Builder call() {
         return parsePlantUML(p);
     }
 

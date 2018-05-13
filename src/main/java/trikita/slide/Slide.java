@@ -213,8 +213,8 @@ public class Slide {
         }
 
         if(loadingImages) {
-            (new LoadingScreenRenderer(App.instance.getApplicationContext(), fg, bg))
-                .accept(canvas, "Loading images...");
+            (new LoadingScreenRenderer(App.instance.getApplicationContext(), fg, bg, canvas, "Loading images..."))
+                .run();
             return;
         }
 
@@ -228,11 +228,10 @@ public class Slide {
             float dw = StaticLayout.getDesiredWidth(text, textPaint);
 
             if (dw <= w) {
-                StaticLayout layout = StaticLayout.Builder
-                    .obtain(text, 0, text.length(), textPaint, (int)dw)
-                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                    .setIncludePad(false)
-                    .build();
+                StaticLayout layout = new StaticLayout(
+                    text, textPaint, (int)dw, Layout.Alignment.ALIGN_NORMAL,
+                    1.0f, 0.0f, false
+                );
 
                 if (layout.getHeight() >= h) {
                     continue;
