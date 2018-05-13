@@ -11,26 +11,28 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 import trikita.slide.Presentation;
 import trikita.slide.Slide;
 import trikita.slide.ui.MathView;
 
-public class MathTypeSetter implements Function<Slide.Builder,Slide.Builder> {
+public class MathTypeSetter implements Callable<Slide.Builder> {
 
     protected final Activity ctx;
+    protected final Slide.Builder b;
 
-    public MathTypeSetter(Activity ctx) {
+    public MathTypeSetter(Activity ctx, Slide.Builder b) {
         this.ctx = ctx;
+        this.b = b;
     }
 
     @Override
-    public Slide.Builder apply(Slide.Builder b) {
+    public Slide.Builder call() {
         return typesetMath(b);
     }
 
@@ -86,7 +88,7 @@ public class MathTypeSetter implements Function<Slide.Builder,Slide.Builder> {
     }
 
     protected String processMath(Slide.Builder b, String mathLines) {
-        CompletableFuture<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
+        FutureTask<Bitmap> bmpf = new MathView(this.ctx, b, mathLines.trim()).futureBitmap();
 
         try {
             Bitmap bmp = bmpf.get(10, TimeUnit.SECONDS);

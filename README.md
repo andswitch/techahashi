@@ -7,7 +7,7 @@
 
 ## Summary
 
-* minSdk 24
+* minSdk 21
 * Updated to use all the latest dependencies of Picasso, etc.
 * Send PlantUML diagrams to a PlantUML server and render the generated
   image.

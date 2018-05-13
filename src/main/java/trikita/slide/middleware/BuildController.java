@@ -1,19 +1,22 @@
 package trikita.slide.middleware;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
 import trikita.slide.ActionType;
+import trikita.slide.App;
 import trikita.slide.Presentation;
 import trikita.slide.Slide;
 import trikita.slide.State;
@@ -24,7 +27,7 @@ import trikita.slide.functions.SlideTemplateProcessor;
 public class BuildController implements Store.Middleware<Action<ActionType, ?>, State> {
 
     protected Activity ctx;
-    protected final Map<Pair<Integer,Integer>, CompletableFuture<Slide>> buildCache;
+    protected final Map<Pair<Integer,Integer>, Future<Slide>> buildCache;
     protected final Handler buildHandler;
 
     private static final int REGENERATION_TIMEOUT = 300;
@@ -47,7 +50,7 @@ public class BuildController implements Store.Middleware<Action<ActionType, ?>, 
         if(now) {
             Set<Pair<Integer, Integer>> keys = buildCache.keySet();
             for (Pair<Integer, Integer> key : keys) {
-                CompletableFuture<Slide> slide = buildCache.get(key);
+                Future<Slide> slide = buildCache.get(key);
                 if (!slide.isDone()) slide.cancel(true);
                 buildCache.remove(key);
             }
@@ -61,31 +64,39 @@ public class BuildController implements Store.Middleware<Action<ActionType, ?>, 
         return this;
     }
 
-    public BuildController reportFailure(CompletableFuture<Slide> future) {
-        Set<Map.Entry<Pair<Integer,Integer>,CompletableFuture<Slide>>> es = buildCache.entrySet();
-        for(Map.Entry<Pair<Integer,Integer>,CompletableFuture<Slide>> e : es) {
-            if(e.getValue() == future) {
-                buildCache.remove(e.getKey(), e.getValue());
-                break;
-            }
-        }
+    private BuildController reportFailure(Pair<Integer,Integer> cacheKey) {
+        buildCache.remove(cacheKey);
         return this;
     }
 
-    public CompletableFuture<Slide> build(Presentation p, int page, int width) {
-        Pair<Integer,Integer> cacheKey = new Pair<>(page,width);
+    public Future<Slide> build(Presentation p, int page, int width, Runnable onDone) {
+        final Pair<Integer,Integer> cacheKey = new Pair<>(page,width);
+
         if(buildCache.containsKey(cacheKey))
             return buildCache.get(cacheKey);
 
-        CompletableFuture<Slide.Builder> builder =
-            CompletableFuture.supplyAsync(() -> p.slideBuilder(page,width))
-                .thenApplyAsync(new SlideTemplateProcessor())
-                .thenApplyAsync(new MathTypeSetter(ctx));
+        final FutureTask<Slide> future = new FutureTask<>(() -> {
+            try {
+                Slide.Builder builder =
+                    new MathTypeSetter(ctx,
+                    new SlideTemplateProcessor(
+                    p.slideBuilder(page, width)
+                ).call()
+                ).call();
 
-        if(p.plantUMLEnabled())
-            builder = builder.thenApplyAsync(new PlantUMLProcessor());
+                if (p.plantUMLEnabled())
+                    builder = new PlantUMLProcessor(builder).call();
 
-        CompletableFuture<Slide> future = builder.thenApplyAsync(Slide.Builder::build);
+                return builder.build();
+            } catch(Exception e) {
+                App.getBuildController().reportFailure(cacheKey);
+                throw e;
+            } finally {
+                if(onDone != null) onDone.run();
+            }
+        });
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(future);
+
         buildCache.put(cacheKey, future);
         return future;
     }

@@ -1,12 +1,11 @@
 package trikita.slide.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
@@ -39,7 +38,7 @@ public class Preview extends View implements View.OnTouchListener {
         Presentation p = App.getState().getCurrentPresentation();
         int page = p.pageForCursor(App.getMainLayout().cursor());
 
-        CompletableFuture<Slide> slide = App.getBuildController().build(p, page, canvas.getWidth());
+        Future<Slide> slide = App.getBuildController().build(p, page, canvas.getWidth(), Anvil::render);
         if(slide.isDone())
             try {
                 slide.get().render(canvas, Style.SLIDE_FONT, false);
@@ -48,13 +47,8 @@ public class Preview extends View implements View.OnTouchListener {
             }
         else {
             final int[] cs = Style.COLOR_SCHEMES[p.colorScheme()];
-            (new LoadingScreenRenderer(this.getContext(), cs[0], cs[1]))
-                .accept(canvas, "Building slide...");
-            slide.handleAsync((r,e) -> {
-                if(e != null) App.getBuildController().reportFailure(slide);
-                Anvil.render();
-                return e;
-            });
+            (new LoadingScreenRenderer(this.getContext(), cs[0], cs[1], canvas, "Building slide..."))
+                .run();
         }
     }
 

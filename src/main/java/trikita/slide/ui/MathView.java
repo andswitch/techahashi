@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 import trikita.slide.Slide;
 import trikita.slide.functions.BitmapCropper;
@@ -20,12 +22,28 @@ public class MathView {
     private Handler mHandler;
     private final Slide.Builder builder;
     private final String maths;
-    private final CompletableFuture<Bitmap> result;
+    private final DelayedBitmapCropper bitmapCropper;
+    private final FutureTask<Bitmap> result;
+
+    private static class DelayedBitmapCropper implements Callable<Bitmap> {
+        protected BitmapCropper cropper;
+
+        public DelayedBitmapCropper createCropper(Bitmap bmp, Integer fontSize) {
+            this.cropper = new BitmapCropper(bmp, fontSize);
+            return this;
+        }
+
+        @Override
+        public Bitmap call() throws Exception {
+            return cropper.call();
+        }
+    }
 
     public MathView(Activity act, Slide.Builder b, String maths) {
         this.builder = b;
         this.maths = maths;
-        this.result = new CompletableFuture<>();
+        this.bitmapCropper = new DelayedBitmapCropper();
+        this.result = new FutureTask<>(bitmapCropper);
 
         act.runOnUiThread(() -> {
             this.mHandler = new Handler(msg -> {
@@ -53,7 +71,8 @@ public class MathView {
     private void onTypeset(int fontSize) {
         final Bitmap bmp = Bitmap.createBitmap(this.webView.getWidth(), this.webView.getHeight(), Bitmap.Config.ARGB_8888);
         this.webView.draw(new Canvas(bmp));
-        CompletableFuture.runAsync(() -> result.complete(new BitmapCropper().apply(bmp, fontSize)));
+        this.bitmapCropper.createCropper(bmp, fontSize);
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(this.result);
     }
 
     private void onLoaded() {
@@ -64,7 +83,7 @@ public class MathView {
         + "')");
     }
 
-    public CompletableFuture<Bitmap> futureBitmap() {
+    public FutureTask<Bitmap> futureBitmap() {
         return result;
     }
 

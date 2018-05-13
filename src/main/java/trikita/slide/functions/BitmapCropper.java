@@ -1,23 +1,39 @@
 package trikita.slide.functions;
 
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
-public class BitmapCropper implements BiFunction<Bitmap,Integer,Bitmap> {
+public class BitmapCropper implements Callable<Bitmap> {
+    protected final Bitmap bitmap;
+    protected final int fontSize;
+
+    public BitmapCropper(Bitmap bitmap, Integer fontSize) {
+        this.bitmap = bitmap;
+        this.fontSize = fontSize;
+    }
+
     @Override
-    public Bitmap apply(Bitmap bitmap, Integer fontSize) {
+    public Bitmap call() {
         final int c = 0x00000000;
 
-        CompletableFuture<Integer> fx1 =
-            CompletableFuture.supplyAsync(() -> findBorder(bitmap, fontSize, c, 0, 1, 0));
-        CompletableFuture<Integer> fy1 =
-            CompletableFuture.supplyAsync(() -> findBorder(bitmap, fontSize, c, 0, 0, 1));
-        CompletableFuture<Integer> fx2 =
-            CompletableFuture.supplyAsync(() -> findBorder(bitmap, fontSize, c, bitmap.getWidth()-1, -1, 0));
-        CompletableFuture<Integer> fy2 =
-            CompletableFuture.supplyAsync(() -> findBorder(bitmap, fontSize, c, bitmap.getHeight()-1, 0, -1));
+        FutureTask<Integer> fx1 =
+            new FutureTask<>(() -> findBorder(bitmap, fontSize, c, 0, 1, 0));
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(fx1);
+
+        FutureTask<Integer> fy1 =
+            new FutureTask<>(() -> findBorder(bitmap, fontSize, c, 0, 0, 1));
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(fy1);
+
+        FutureTask<Integer> fx2 =
+            new FutureTask<>(() -> findBorder(bitmap, fontSize, c, bitmap.getWidth()-1, -1, 0));
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(fx2);
+
+        FutureTask<Integer> fy2 =
+            new FutureTask<>(() -> findBorder(bitmap, fontSize, c, bitmap.getHeight()-1, 0, -1));
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(fy2);
 
         try {
             int x1 = fx1.get();

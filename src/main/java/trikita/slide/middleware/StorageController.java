@@ -16,11 +16,10 @@ import android.support.v4.app.NotificationManagerCompat;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import trikita.jedux.Action;
 import trikita.jedux.Store;
@@ -113,12 +112,11 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 for (int i = 1; i <= p.numberOfPages(); ++i) {
                     Canvas c = new Canvas(bmp);
 
-                    CompletableFuture<Slide> future = App.getBuildController().build(p,i,p.getPdfWidth(context));
+                    Future<Slide> future = App.getBuildController().build(p,i,p.getPdfWidth(context), null);
                     try {
                         Slide slide = future.get();
                         slide.render(c, Style.SLIDE_FONT, true);
                     } catch(ExecutionException e) {
-                        App.getBuildController().reportFailure(future);
                         --i;
                         continue;
                     }
@@ -175,7 +173,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
     }
 
     private String getTimestamp() {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HHmm");
+        DateFormat df = DateFormat.getDateTimeInstance();
         return df.format(Calendar.getInstance(TimeZone.getDefault()).getTimeInMillis());
     }
 

@@ -2,7 +2,6 @@ package trikita.slide;
 
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
