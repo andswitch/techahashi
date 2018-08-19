@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -14,8 +14,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import trikita.slide.Slide;
-import trikita.slide.functions.BitmapCropper;
+import negativedensity.techahashi.Slide;
+import negativedensity.techahashi.functions.BitmapCropper;
 
 public class MathView {
 
@@ -96,12 +96,12 @@ public class MathView {
         }
 
         @JavascriptInterface
-        void onTypeset(int fontSize) {
+        public void onTypeset(int fontSize) {
             Message.obtain(this.mHandler, 1, fontSize).sendToTarget();
         }
 
         @JavascriptInterface
-        void onLoaded() {
+        public void onLoaded() {
             Message.obtain(this.mHandler, 0).sendToTarget();
         }
     }

@@ -1,4 +1,4 @@
-package trikita.slide.functions;
+package negativedensity.techahashi.functions;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;

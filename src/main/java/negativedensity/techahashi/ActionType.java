@@ -1,4 +1,4 @@
-package trikita.slide;
+package negativedensity.techahashi;
 
 public enum ActionType {
     SET_TEXT,

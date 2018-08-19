@@ -1,4 +1,4 @@
-package trikita.slide;
+package negativedensity.techahashi;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -26,8 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import trikita.anvil.Anvil;
-import trikita.slide.functions.LoadingScreenRenderer;
-import trikita.slide.ui.Style;
+import negativedensity.techahashi.functions.LoadingScreenRenderer;
+import negativedensity.techahashi.ui.Style;
+import negativedensity.techahashi.Presentation;
 
 public class Slide {
 

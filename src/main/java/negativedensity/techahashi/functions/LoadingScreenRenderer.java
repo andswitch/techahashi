@@ -1,4 +1,4 @@
-package trikita.slide.functions;
+package negativedensity.techahashi.functions;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,7 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.TextPaint;
 
-import trikita.slide.R;
+import negativedensity.techahashi.R;
 
 public class LoadingScreenRenderer implements Runnable {
     private final Context ctx;

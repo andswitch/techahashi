@@ -1,4 +1,4 @@
-package trikita.slide.middleware;
+package negativedensity.techahashi.middleware;
 
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -11,10 +11,10 @@ import com.google.gson.GsonBuilder;
 
 import trikita.jedux.Action;
 import trikita.jedux.Store;
-import trikita.slide.ActionType;
-import trikita.slide.GsonAdaptersState;
-import trikita.slide.ImmutableState;
-import trikita.slide.State;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.GsonAdaptersState;
+import negativedensity.techahashi.ImmutableState;
+import negativedensity.techahashi.State;
 
 public class PersistanceController implements Store.Middleware<Action<ActionType, ?>, State> {
 

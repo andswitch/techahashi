@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.content.Context;
 import android.widget.GridView;
@@ -8,8 +8,8 @@ import java.util.Arrays;
 import trikita.anvil.RenderableAdapter;
 import trikita.anvil.RenderableView;
 import trikita.jedux.Action;
-import trikita.slide.ActionType;
-import trikita.slide.App;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
 
 import static trikita.anvil.DSL.CENTER;
 import static trikita.anvil.DSL.FILL;
