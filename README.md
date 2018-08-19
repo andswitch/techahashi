@@ -2,10 +2,10 @@
 
 Based on https://github.com/trikita/slide
 
-Takahashi method with two extras for making tech. presentations:
+With two extras for making tech. presentations:
 
-1. Ability to add UML diagrams using a remote PlantUML server
-2. Ability to add formulas using builtin MathJax support
+1. Ability to add *UML diagrams* using a remote PlantUML server
+2. Ability to add *formulas* using builtin MathJax support
 
 <div>
 <img alt="PlantUML Demo" src="uml.png" width="40%" />
