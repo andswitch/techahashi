@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,10 +18,10 @@ import android.widget.TextView;
 import trikita.anvil.Anvil;
 import trikita.anvil.RenderableView;
 import trikita.jedux.Action;
-import trikita.slide.ActionType;
-import trikita.slide.App;
-import trikita.slide.Presentation;
-import trikita.slide.R;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
+import negativedensity.techahashi.Presentation;
+import negativedensity.techahashi.R;
 
 import static trikita.anvil.DSL.FILL;
 import static trikita.anvil.DSL.START;

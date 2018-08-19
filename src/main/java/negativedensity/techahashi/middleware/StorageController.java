@@ -1,4 +1,4 @@
-package trikita.slide.middleware;
+package negativedensity.techahashi.middleware;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -25,13 +25,13 @@ import java.util.concurrent.TimeoutException;
 
 import trikita.jedux.Action;
 import trikita.jedux.Store;
-import trikita.slide.ActionType;
-import trikita.slide.App;
-import trikita.slide.Presentation;
-import trikita.slide.R;
-import trikita.slide.Slide;
-import trikita.slide.State;
-import trikita.slide.ui.Style;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
+import negativedensity.techahashi.Presentation;
+import negativedensity.techahashi.R;
+import negativedensity.techahashi.Slide;
+import negativedensity.techahashi.State;
+import negativedensity.techahashi.ui.Style;
 
 
 public class StorageController implements Store.Middleware<Action<ActionType, ?>, State> {

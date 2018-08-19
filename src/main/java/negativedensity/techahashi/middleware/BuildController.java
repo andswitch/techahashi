@@ -1,4 +1,4 @@
-package trikita.slide.middleware;
+package negativedensity.techahashi.middleware;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -17,14 +17,14 @@ import java.util.concurrent.TimeoutException;
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
-import trikita.slide.ActionType;
-import trikita.slide.App;
-import trikita.slide.Presentation;
-import trikita.slide.Slide;
-import trikita.slide.State;
-import trikita.slide.functions.MathTypeSetter;
-import trikita.slide.functions.PlantUMLProcessor;
-import trikita.slide.functions.SlideTemplateProcessor;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
+import negativedensity.techahashi.Presentation;
+import negativedensity.techahashi.Slide;
+import negativedensity.techahashi.State;
+import negativedensity.techahashi.functions.MathTypeSetter;
+import negativedensity.techahashi.functions.PlantUMLProcessor;
+import negativedensity.techahashi.functions.SlideTemplateProcessor;
 
 public class BuildController implements Store.Middleware<Action<ActionType, ?>, State> {
 

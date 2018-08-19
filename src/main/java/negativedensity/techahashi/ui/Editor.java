@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -6,8 +6,8 @@ import android.view.View;
 import android.widget.EditText;
 
 import trikita.jedux.Action;
-import trikita.slide.ActionType;
-import trikita.slide.App;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
 
 public class Editor extends EditText implements View.OnTouchListener {
 

@@ -1,4 +1,4 @@
-package trikita.slide;
+package negativedensity.techahashi;
 
 import android.app.Activity;
 import android.app.Application;
@@ -6,11 +6,12 @@ import android.app.Application;
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
-import trikita.slide.middleware.BuildController;
-import trikita.slide.middleware.PersistanceController;
-import trikita.slide.middleware.StorageController;
-import trikita.slide.middleware.WindowController;
-import trikita.slide.ui.MainLayout;
+import negativedensity.techahashi.middleware.BuildController;
+import negativedensity.techahashi.middleware.PersistanceController;
+import negativedensity.techahashi.middleware.StorageController;
+import negativedensity.techahashi.middleware.WindowController;
+import negativedensity.techahashi.ui.MainLayout;
+import negativedensity.techahashi.State;
 
 public class App extends Application {
     public static App instance;

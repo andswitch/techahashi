@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,10 +6,9 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import trikita.jedux.Action;
-import trikita.promote.Promote;
-import trikita.slide.ActionType;
-import trikita.slide.App;
-import trikita.slide.middleware.StorageController;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
+import negativedensity.techahashi.middleware.StorageController;
 
 public class MainActivity extends Activity {
 
@@ -29,11 +28,6 @@ public class MainActivity extends Activity {
         if (App.getState().presentationMode()) {
             App.dispatch(new Action<>(ActionType.OPEN_PRESENTATION));
         }
-        Promote.after(3).times().every(10).times().rate(this);
-        Promote.after(5).times().every(5).times().share(this,
-                Promote.FACEBOOK_TWITTER,
-                "https://github.com/trikita/slide",
-                "Slide: Minimal presentation maker");
     }
 
     @Override

@@ -1,4 +1,4 @@
-package trikita.slide.functions;
+package negativedensity.techahashi.functions;
 
 import android.text.TextUtils;
 
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.zip.Deflater;
 
-import trikita.slide.Presentation;
-import trikita.slide.Slide;
+import negativedensity.techahashi.Presentation;
+import negativedensity.techahashi.Slide;
 
 public class PlantUMLProcessor implements Callable<Slide.Builder> {
     protected final Slide.Builder p;

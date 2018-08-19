@@ -1,4 +1,4 @@
-package trikita.slide;
+package negativedensity.techahashi;
 
 import android.content.Context;
 import android.os.Vibrator;
@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
 import trikita.jedux.Action;
 import trikita.jedux.Store;
 

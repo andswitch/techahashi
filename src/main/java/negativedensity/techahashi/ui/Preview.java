@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,11 +9,11 @@ import java.util.concurrent.Future;
 
 import trikita.anvil.Anvil;
 import trikita.jedux.Action;
-import trikita.slide.ActionType;
-import trikita.slide.App;
-import trikita.slide.Presentation;
-import trikita.slide.Slide;
-import trikita.slide.functions.LoadingScreenRenderer;
+import negativedensity.techahashi.ActionType;
+import negativedensity.techahashi.App;
+import negativedensity.techahashi.Presentation;
+import negativedensity.techahashi.Slide;
+import negativedensity.techahashi.functions.LoadingScreenRenderer;
 
 public class Preview extends View implements View.OnTouchListener {
 

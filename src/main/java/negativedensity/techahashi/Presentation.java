@@ -1,10 +1,12 @@
-package trikita.slide;
+package negativedensity.techahashi;
 
 import android.content.Context;
 import android.net.Uri;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
+
+import negativedensity.techahashi.Slide;
 
 @Value.Immutable
 @Gson.TypeAdapters

@@ -1,8 +1,8 @@
-package trikita.slide.functions;
+package negativedensity.techahashi.functions;
 
 import java.util.concurrent.Callable;
 
-import trikita.slide.Slide;
+import negativedensity.techahashi.Slide;
 
 public class SlideTemplateProcessor implements Callable<Slide.Builder> {
     protected final Slide.Builder p;

@@ -1,4 +1,4 @@
-package trikita.slide.ui;
+package negativedensity.techahashi.ui;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -6,7 +6,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.view.Gravity;
 
-import trikita.slide.R;
+import negativedensity.techahashi.R;
 
 import static trikita.anvil.DSL.CENTER;
 import static trikita.anvil.DSL.CENTER_HORIZONTAL;

@@ -1,4 +1,4 @@
-package trikita.slide.functions;
+package negativedensity.techahashi.functions;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -17,9 +17,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import trikita.slide.Presentation;
-import trikita.slide.Slide;
-import trikita.slide.ui.MathView;
+import negativedensity.techahashi.Presentation;
+import negativedensity.techahashi.Slide;
+import negativedensity.techahashi.ui.MathView;
 
 public class MathTypeSetter implements Callable<Slide.Builder> {
 
