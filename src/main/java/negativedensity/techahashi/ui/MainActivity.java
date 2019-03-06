@@ -57,6 +57,10 @@ public class MainActivity extends Activity {
             App.dispatch(new Action<>(ActionType.EXPORT_PDF, uri));
         } else if (requestCode == StorageController.PICK_IMAGE_REQUEST_CODE) {
             Uri uri = data.getData();
+            final int takeFlags = data.getFlags()
+                    & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            getContentResolver().takePersistableUriPermission(uri, takeFlags);
             App.dispatch(new Action<>(ActionType.INSERT_IMAGE, uri));
         }
     }
