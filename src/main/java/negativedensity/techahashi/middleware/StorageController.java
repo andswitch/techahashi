@@ -81,6 +81,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
                 s = s.substring(0, startOfLine+1)+"@"+(action.value).toString()+"\n"+s.substring(startOfLine+1);
             }
             App.dispatch(new Action<>(ActionType.SET_TEXT, s));
+            App.getMainLayout().cursor(c);
         }
     }
 
@@ -210,7 +211,7 @@ public class StorageController implements Store.Middleware<Action<ActionType, ?>
     }
 
     private void pickImage(Activity a) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         a.startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
