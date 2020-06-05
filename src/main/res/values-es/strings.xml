@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorial_text">TECHAHASHI\n\nCada párrafo\nes una diapositiva\n\nEste es una diapositiva\n.\ncon una línea en blanco\n\nToca la vista previa\npara iniciar la presentación\n\nDesliza a los costados de la vista\npara ir a otra diapositivato\n\nTambién puedes hacer clic\nen un esquema de color en el menú\n\n¡Hecho!\n\nUML\n\n¡También puedes añadir UML!\n\nActiva PlantUML en el menú\n\n@startuml\nBob->Alice : hello\n@enduml\n\n@startuml nw 50%\nclass Foo\n.\nclass Bar\n@enduml\n.\n#Hello\n.\n@startuml se 50%\nclass Baz\n@enduml\n\nRevisa la documentación PlantUML docs en el menú\n\nMathJax\n\nUsa @startmath y @endmath\n\n@startmath\nf(x) = ax^2 + bx +c\n@endmath\n\n¡Las opciones de diseño también se aplican!\n\n@startmath se 75%\nf(x) = ax^2+bx+c=0\n@endmath\n\n¿Quieres crear más presentaciones?\n\nPrimero cambie el texto de esta presentación\n\nLuego pasa directamente al editor para\ncrear una nueva diapositiva\n\nDesliza a la izquierda para regresar\nTodos los datos se guardan al instante :)\n\nPuedes hacer más cosas\n\nComo el establecimiento de plantillas\n\nSólo mira el menú\n\nCada presentación tiene sus propios ajustes\n\nNo olvides de exportar\na PDF y comparte</string>
+
+    <string name="failed_export_pdf">Error al exportar a PDF</string>
+
+    <string name="dlg_style_picker_title">Selecciona un estilo</string>
+    <string name="btn_ok">Aceptar</string>
+
+    <string name="om_insert_image">Insertar imagen</string>
+    <string name="om_style">Estilo</string>
+    <string name="om_export_pdf">Exportar to PDF</string>
+    <string name="om_config_plantuml">Configurar PlantUML</string>
+
+    <string name="pm_warning">Nota: a PlantUML server is used to create the diagram. The textual data is sent via internet to the configured URL. For confidential information, use a trusted URL with HTTPS.</string>
+    <string name="pm_enable">Activar PlantUML</string>
+    <string name="pm_plantuml_endpoint">URL del endpoint de PlantUML</string>
+
+    <string name="pm_plantuml_template_before">El texto configurado a continuación se inserta al encabezado de cada diagrama UML.</string>
+    <string name="pm_plantuml_template_after">El texto configurado a continuación se inserta al pie de cada diagrama UML.</string>
+
+    <string name="om_plantuml_docs">PlantUML docs</string>
+    <string name="om_template">Plantilla</string>
+
+    <string name="template_before">El texto configurado a continuación se inserta al encabezado de cada diapositiva.</string>
+    <string name="template_after">El texto configurado a continuación se inserta al pie de cada diapositiva.</string>
+
+    <string name="select_resolution">Seleccionar resolución</string>
+    <string name="om_remove">Remover Presentación</string>
+    <string name="are_you_sure">¿Estás seguro?</string>
+
+    <string name="notifications_exporting_pdf_progress">Exportando… (podría tomar tiempo).</string>
+    <string name="notifications_exporting_pdf_complete">Exportación completa. Toca para abrir PDF.</string>
+</resources>
